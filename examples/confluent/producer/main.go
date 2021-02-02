@@ -15,8 +15,7 @@ import (
 	"github.com/alebabai/go-kit-kafka/examples/confluent/domain"
 )
 
-func fatal(logger log.Logger, prefix string, err error) {
-	err = fmt.Errorf("%s: %w", prefix, err)
+func fatal(logger log.Logger, err error) {
 	_ = logger.Log("err", err)
 	os.Exit(1)
 }
@@ -41,7 +40,7 @@ func main() {
 			"bootstrap.servers": brokerAddr,
 		})
 		if err != nil {
-			fatal(logger, "failed to create publisher", err)
+			fatal(logger, fmt.Errorf("failed to create publisher: %w", err))
 		}
 
 		defer p.Close()
@@ -51,7 +50,7 @@ func main() {
 	{
 		g, err := NewGenerator(logger)
 		if err != nil {
-			fatal(logger, "failed to create generator", err)
+			fatal(logger, fmt.Errorf("failed to create generator: %w", err))
 		}
 
 		svc = ProducerMiddleware(domain.Topic, p, logger)(g)
@@ -62,7 +61,7 @@ func main() {
 		var err error
 		e, err = NewEndpoints(svc)
 		if err != nil {
-			fatal(logger, "failed to create endpoints", err)
+			fatal(logger, fmt.Errorf("failed to create endpoints: %w", err))
 		}
 	}
 
@@ -71,7 +70,7 @@ func main() {
 		var err error
 		h, err = NewHTTPHandler(e)
 		if err != nil {
-			fatal(logger, "failed to create http handler", err)
+			fatal(logger, fmt.Errorf("failed to create http handler: %w", err))
 		}
 	}
 

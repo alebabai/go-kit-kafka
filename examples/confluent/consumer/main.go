@@ -19,9 +19,8 @@ import (
 	"github.com/alebabai/go-kit-kafka/examples/confluent/domain"
 )
 
-func fatal(logger log.Logger, prefix string, err error) {
-	err = fmt.Errorf("%s: %w", prefix, err)
-	_ = level.Error(logger).Log("err", err)
+func fatal(logger log.Logger, err error) {
+	_ = level.Error(logger).Log("err: %w", err)
 	os.Exit(1)
 }
 
@@ -47,7 +46,7 @@ func main() {
 	{
 		s, err := NewStorage(logger)
 		if err != nil {
-			fatal(logger, "failed to init storage", err)
+			fatal(logger, fmt.Errorf("failed to init storage: %w", err))
 		}
 		svc = s
 	}
@@ -57,7 +56,7 @@ func main() {
 		var err error
 		e, err = NewEndpoints(svc)
 		if err != nil {
-			fatal(logger, "failed to create endpoints", err)
+			fatal(logger, fmt.Errorf("failed to create endpoints: %w", err))
 		}
 	}
 
@@ -66,7 +65,7 @@ func main() {
 		var err error
 		httpHandler, err = NewHTTPHandler(e)
 		if err != nil {
-			fatal(logger, "failed to create http handler", err)
+			fatal(logger, fmt.Errorf("failed to create http handler: %w", err))
 		}
 	}
 
@@ -75,7 +74,7 @@ func main() {
 		var err error
 		kafkaHandler, err = NewKafkaHandler(e)
 		if err != nil {
-			fatal(logger, "failed to init kafka handler", err)
+			fatal(logger, fmt.Errorf("failed to init kafka handler: %w", err))
 		}
 	}
 
@@ -92,19 +91,19 @@ func main() {
 			"enable.auto.commit": true,
 		})
 		if err != nil {
-			fatal(logger, "failed to init kafka consumer", err)
+			fatal(logger, fmt.Errorf("failed to init kafka consumer: %w", err))
 		}
 
 		topics := []string{
 			domain.Topic,
 		}
 		if err := c.SubscribeTopics(topics, nil); err != nil {
-			fatal(logger, "failed to subscribe to topics", err)
+			fatal(logger, fmt.Errorf("failed to subscribe to topics: %w", err))
 		}
 
 		r, err := adapter.NewReader(c)
 		if err != nil {
-			fatal(logger, "failed to init kafka reader", err)
+			fatal(logger, fmt.Errorf("failed to init kafka reader: %w", err))
 		}
 
 		handlers := map[string]kafka.Handler{
@@ -120,7 +119,7 @@ func main() {
 			kafka.ListenerManualCommit(false),
 		)
 		if err != nil {
-			fatal(logger, "failed to init kafka listener", err)
+			fatal(logger, fmt.Errorf("failed to init kafka listener: %w", err))
 		}
 	}
 
