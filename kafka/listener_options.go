@@ -24,3 +24,9 @@ func ListenerManualCommit(manualCommit bool) ListenerOption {
 		l.manualCommit = manualCommit
 	}
 }
+
+func ListenerAsyncHandle(asyncHandle bool) ListenerOption {
+	return func(l *Listener) {
+		l.asyncHandle = asyncHandle
+	}
+}

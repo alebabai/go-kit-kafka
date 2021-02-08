@@ -16,6 +16,7 @@ type Listener struct {
 	handlers Handlers
 
 	manualCommit bool
+	asyncHandle  bool
 
 	errorHandler transport.ErrorHandler
 }
@@ -55,7 +56,11 @@ func (l *Listener) Listen(ctx context.Context) error {
 				continue
 			}
 
-			l.onMessage(ctx, msg)
+			if l.asyncHandle && !l.manualCommit {
+				go l.onMessage(ctx, msg)
+			} else {
+				l.onMessage(ctx, msg)
+			}
 		}
 	}
 }
@@ -66,7 +71,7 @@ func (l *Listener) onMessage(ctx context.Context, msg Message) {
 		if err := h.Handle(ctx, msg); err != nil {
 			err = fmt.Errorf("failed to handle kafka message from topic=%s: %w", msg.Topic(), err)
 			l.errorHandler.Handle(ctx, err)
-		} else if l.manualCommit {
+		} else if l.manualCommit && !l.asyncHandle {
 			if err := l.reader.Commit(ctx); err != nil {
 				err = fmt.Errorf("failed to commit kafka offsets: %w", err)
 				l.errorHandler.Handle(ctx, err)
