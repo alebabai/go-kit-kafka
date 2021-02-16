@@ -49,5 +49,5 @@ coverage: test
 	$(GO) tool cover -html=$(GO_COVER_PROFILE) -o coverage.html
 
 .PHONY: lint
-lint: prepare
+lint:
 	$(GOLANGCI_LINT) run -v
