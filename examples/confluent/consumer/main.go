@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	ckafka "github.com/confluentinc/confluent-kafka-go/kafka"
 
@@ -116,7 +117,7 @@ func main() {
 			kafka.ListenerErrorLogger(
 				log.With(logger, "component", "listener"),
 			),
-			kafka.ListenerManualCommit(false),
+			kafka.ListenerReadTimeout(1*time.Second),
 		)
 		if err != nil {
 			fatal(logger, fmt.Errorf("failed to init kafka listener: %w", err))

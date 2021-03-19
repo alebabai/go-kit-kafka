@@ -12,7 +12,6 @@ import (
 
 type consumer interface {
 	ReadMessage(timeout time.Duration) (*kafka.Message, error)
-	Commit() ([]kafka.TopicPartition, error)
 	io.Closer
 }
 
@@ -28,21 +27,20 @@ func NewReader(c consumer) (*Reader, error) {
 	return r, nil
 }
 
-func (r *Reader) ReadMessage(_ context.Context) (kitkafka.Message, error) {
-	msg, err := r.consumer.ReadMessage(-1)
-	if err != nil {
-		return nil, err
+func (r *Reader) ReadMessage(ctx context.Context, timeout time.Duration) (kitkafka.Message, error) {
+	for {
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		default:
+			msg, err := r.consumer.ReadMessage(timeout)
+			if err != nil {
+				return nil, err
+			}
+
+			return NewMessage(msg), nil
+		}
 	}
-
-	return NewMessage(msg), nil
-}
-
-func (r *Reader) Commit(_ context.Context) error {
-	if _, err := r.consumer.Commit(); err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func (r *Reader) Close() error {
