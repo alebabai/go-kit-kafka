@@ -1,10 +1,10 @@
 MODE						?= local
 
 GO							?= @go
-GO_VERSION					?= 1.15
+GO_VERSION					?= 1.16
 
 GOLANGCI_LINT				?= @golangci-lint
-GOLANGCI_LINT_VERSION		?= 1.29.0
+GOLANGCI_LINT_VERSION		?= 1.38.0
 
 PACKAGES					?= ./...
 GO_COVER_PROFILE			?= coverage.out

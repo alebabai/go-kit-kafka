@@ -1,6 +1,6 @@
 module github.com/alebabai/go-kit-kafka/examples/confluent
 
-go 1.15
+go 1.16
 
 require (
 	github.com/alebabai/go-kit-kafka v0.1.0

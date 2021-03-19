@@ -27,7 +27,7 @@ services:
       - 9094:9094
 
   producer:
-    image: library/golang:1.15
+    image: library/golang:1.16
     restart: on-failure
     depends_on:
       - kafka
@@ -42,7 +42,7 @@ services:
       - 8080:8080
 
   consumer:
-    image: library/golang:1.15
+    image: library/golang:1.16
     restart: on-failure
     depends_on:
       - kafka
