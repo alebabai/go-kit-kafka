@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/go-kit/kit/transport"
 )
@@ -15,8 +16,8 @@ type Listener struct {
 	reader   Reader
 	handlers Handlers
 
-	manualCommit bool
-	asyncHandle  bool
+	readTimeout time.Duration
+	asyncHandle bool
 
 	errorHandler transport.ErrorHandler
 }
@@ -30,8 +31,9 @@ func NewListener(reader Reader, handlers Handlers, opts ...ListenerOption) (*Lis
 	}
 
 	l := &Listener{
-		reader:   reader,
-		handlers: handlers,
+		reader:      reader,
+		handlers:    handlers,
+		readTimeout: -1,
 
 		errorHandler: NewNoopErrorHandler(),
 	}
@@ -49,14 +51,14 @@ func (l *Listener) Listen(ctx context.Context) error {
 		case <-ctx.Done():
 			return ctx.Err()
 		default:
-			msg, err := l.reader.ReadMessage(ctx)
+			msg, err := l.reader.ReadMessage(ctx, l.readTimeout)
 			if err != nil {
 				err = fmt.Errorf("failed to read kafka message: %w", err)
 				l.errorHandler.Handle(ctx, err)
 				continue
 			}
 
-			if l.asyncHandle && !l.manualCommit {
+			if l.asyncHandle {
 				go l.onMessage(ctx, msg)
 			} else {
 				l.onMessage(ctx, msg)
@@ -71,11 +73,6 @@ func (l *Listener) onMessage(ctx context.Context, msg Message) {
 		if err := h.Handle(ctx, msg); err != nil {
 			err = fmt.Errorf("failed to handle kafka message from topic=%s: %w", msg.Topic(), err)
 			l.errorHandler.Handle(ctx, err)
-		} else if l.manualCommit && !l.asyncHandle {
-			if err := l.reader.Commit(ctx); err != nil {
-				err = fmt.Errorf("failed to commit kafka offsets: %w", err)
-				l.errorHandler.Handle(ctx, err)
-			}
 		}
 	}
 }

@@ -22,15 +22,10 @@ type Header interface {
 }
 
 type Reader interface {
-	ReadMessage(ctx context.Context) (Message, error)
-	Committer
+	ReadMessage(ctx context.Context, timeout time.Duration) (Message, error)
 	io.Closer
 }
 
 type Handler interface {
 	Handle(ctx context.Context, msg Message) error
-}
-
-type Committer interface {
-	Commit(ctx context.Context) error
 }

@@ -1,6 +1,8 @@
 package kafka
 
 import (
+	"time"
+
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/transport"
 )
@@ -19,9 +21,9 @@ func ListenerErrorHandler(errHandler transport.ErrorHandler) ListenerOption {
 	}
 }
 
-func ListenerManualCommit(manualCommit bool) ListenerOption {
+func ListenerReadTimeout(readTimeout time.Duration) ListenerOption {
 	return func(l *Listener) {
-		l.manualCommit = manualCommit
+		l.readTimeout = readTimeout
 	}
 }
 
