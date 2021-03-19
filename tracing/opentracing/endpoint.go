@@ -23,7 +23,12 @@ func TraceConsumer(tracer opentracing.Tracer, operationName string) endpoint.Mid
 			ext.SpanKindConsumer.Set(span)
 			ctx = opentracing.ContextWithSpan(ctx, span)
 
-			return next(ctx, request)
+			response, err := next(ctx, request)
+			if err != nil {
+				ext.LogError(span, err)
+			}
+
+			return response, err
 		}
 	}
 }
