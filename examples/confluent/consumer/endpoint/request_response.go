@@ -1,4 +1,4 @@
-package main
+package endpoint
 
 import (
 	"github.com/alebabai/go-kit-kafka/examples/confluent/domain"

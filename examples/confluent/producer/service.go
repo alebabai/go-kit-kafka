@@ -1,4 +1,4 @@
-package main
+package producer
 
 import (
 	"context"
@@ -9,5 +9,3 @@ import (
 type Service interface {
 	Generate(ctx context.Context) (*domain.Event, error)
 }
-
-type Middleware func(svc Service) Service

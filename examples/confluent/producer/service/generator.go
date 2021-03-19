@@ -1,4 +1,4 @@
-package main
+package service
 
 import (
 	"context"
@@ -15,7 +15,7 @@ type Generator struct {
 	logger log.Logger
 }
 
-func NewGenerator(logger log.Logger) (*Generator, error) {
+func NewGeneratorService(logger log.Logger) (*Generator, error) {
 	return &Generator{
 		logger: logger,
 	}, nil

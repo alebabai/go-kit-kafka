@@ -9,10 +9,15 @@ import (
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 
+	kitendpoint "github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 
 	"github.com/alebabai/go-kit-kafka/examples/confluent/domain"
+	"github.com/alebabai/go-kit-kafka/examples/confluent/producer"
+	"github.com/alebabai/go-kit-kafka/examples/confluent/producer/endpoint"
+	"github.com/alebabai/go-kit-kafka/examples/confluent/producer/service"
+	"github.com/alebabai/go-kit-kafka/examples/confluent/producer/transport"
 )
 
 func fatal(logger log.Logger, err error) {
@@ -25,10 +30,20 @@ func main() {
 	{
 		logger = log.NewLogfmtLogger(log.NewSyncWriter(os.Stdout))
 		logger = level.NewFilter(logger, level.AllowDebug())
+		logger = level.NewInjector(logger, level.InfoValue())
 		logger = log.With(logger, "ts", log.DefaultTimestampUTC)
 	}
 
-	var p *kafka.Producer
+	var svc producer.Service
+	{
+		var err error
+		svc, err = service.NewGeneratorService(logger)
+		if err != nil {
+			fatal(logger, fmt.Errorf("failed to create generator: %w", err))
+		}
+	}
+
+	var producerMiddleware kitendpoint.Middleware
 	{
 		brokerAddr := domain.BrokerAddr
 		if v, ok := os.LookupEnv("BROKER_ADDR"); ok {
@@ -36,39 +51,32 @@ func main() {
 		}
 
 		var err error
-		p, err = kafka.NewProducer(&kafka.ConfigMap{
+		p, err := kafka.NewProducer(&kafka.ConfigMap{
 			"bootstrap.servers": brokerAddr,
 		})
 		if err != nil {
 			fatal(logger, fmt.Errorf("failed to create publisher: %w", err))
 		}
-
 		defer p.Close()
+
+		producerMiddleware = endpoint.ProducerMiddleware(
+			domain.Topic,
+			p,
+			log.With(logger, "component", "producer_middleware"),
+		)
 	}
 
-	var svc Service
+	var genEndpoint kitendpoint.Endpoint
 	{
-		g, err := NewGenerator(logger)
-		if err != nil {
-			fatal(logger, fmt.Errorf("failed to create generator: %w", err))
-		}
-
-		svc = ProducerMiddleware(domain.Topic, p, logger)(g)
+		e := endpoint.MakeGenerateEventEndpoint(svc)
+		e = producerMiddleware(e)
+		genEndpoint = e
 	}
 
-	var e *Endpoints
-	{
-		var err error
-		e, err = NewEndpoints(svc)
-		if err != nil {
-			fatal(logger, fmt.Errorf("failed to create endpoints: %w", err))
-		}
-	}
-
-	var h http.Handler
+	var httpHandler http.Handler
 	{
 		var err error
-		h, err = NewHTTPHandler(e)
+		httpHandler, err = transport.NewHTTPHandler(genEndpoint)
 		if err != nil {
 			fatal(logger, fmt.Errorf("failed to create http handler: %w", err))
 		}
@@ -77,7 +85,7 @@ func main() {
 	errc := make(chan error, 1)
 
 	go func() {
-		errc <- http.ListenAndServe(":8080", h)
+		errc <- http.ListenAndServe(":8080", httpHandler)
 	}()
 
 	go func() {

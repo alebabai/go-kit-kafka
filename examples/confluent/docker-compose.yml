@@ -37,7 +37,7 @@ services:
       - .:/app
       - $GOPATH/pkg/mod:/go/pkg/mod
     working_dir: /app
-    command: sh -c "go mod tidy && go run ./producer"
+    command: sh -c "go mod tidy && go run ./producer/cmd/server"
     ports:
       - 8080:8080
 
@@ -52,6 +52,6 @@ services:
       - .:/app
       - $GOPATH/pkg/mod:/go/pkg/mod
     working_dir: /app
-    command: sh -c "go mod tidy && go run ./consumer"
+    command: sh -c "go mod tidy && go run ./consumer/cmd/server"
     ports:
       - 8081:8081

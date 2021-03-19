@@ -1,4 +1,4 @@
-package main
+package service
 
 import (
 	"context"
@@ -10,7 +10,7 @@ import (
 	"github.com/alebabai/go-kit-kafka/examples/confluent/domain"
 )
 
-type Storage struct {
+type StorageService struct {
 	events map[string]domain.Event
 
 	m sync.Mutex
@@ -18,14 +18,14 @@ type Storage struct {
 	logger log.Logger
 }
 
-func NewStorage(logger log.Logger) (*Storage, error) {
-	return &Storage{
+func NewStorageService(logger log.Logger) (*StorageService, error) {
+	return &StorageService{
 		events: make(map[string]domain.Event),
 		logger: logger,
 	}, nil
 }
 
-func (s *Storage) Create(_ context.Context, e domain.Event) error {
+func (s *StorageService) Create(_ context.Context, e domain.Event) error {
 	_ = s.logger.Log("msg", "saving an domain.Event", "event_id", e.ID)
 
 	if _, ok := s.events[e.ID]; ok {
@@ -39,7 +39,7 @@ func (s *Storage) Create(_ context.Context, e domain.Event) error {
 	return nil
 }
 
-func (s *Storage) List(_ context.Context) ([]domain.Event, error) {
+func (s *StorageService) List(_ context.Context) ([]domain.Event, error) {
 	s.m.Lock()
 
 	out := make([]domain.Event, 0)

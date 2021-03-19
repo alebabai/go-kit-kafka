@@ -3,20 +3,21 @@ package main
 import (
 	"context"
 	"fmt"
+	ckafka "github.com/confluentinc/confluent-kafka-go/kafka"
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
-
-	ckafka "github.com/confluentinc/confluent-kafka-go/kafka"
-
-	"github.com/go-kit/kit/log"
-	"github.com/go-kit/kit/log/level"
 
 	"github.com/alebabai/go-kit-kafka/kafka"
 
+	"github.com/alebabai/go-kit-kafka/examples/confluent/consumer"
 	"github.com/alebabai/go-kit-kafka/examples/confluent/consumer/adapter"
+	"github.com/alebabai/go-kit-kafka/examples/confluent/consumer/endpoint"
+	"github.com/alebabai/go-kit-kafka/examples/confluent/consumer/service"
+	"github.com/alebabai/go-kit-kafka/examples/confluent/consumer/transport"
 	"github.com/alebabai/go-kit-kafka/examples/confluent/domain"
 )
 
@@ -40,22 +41,25 @@ func main() {
 	{
 		logger = log.NewLogfmtLogger(log.NewSyncWriter(os.Stdout))
 		logger = level.NewFilter(logger, level.AllowDebug())
+		logger = level.NewInjector(logger, level.InfoValue())
 		logger = log.With(logger, "ts", log.DefaultTimestampUTC)
 	}
 
-	var svc Service
+	var svc consumer.Service
 	{
-		s, err := NewStorage(logger)
+		s, err := service.NewStorageService(
+			log.With(logger, "component", "storage_service"),
+		)
 		if err != nil {
 			fatal(logger, fmt.Errorf("failed to init storage: %w", err))
 		}
 		svc = s
 	}
 
-	var e *Endpoints
+	var e *endpoint.Endpoints
 	{
 		var err error
-		e, err = NewEndpoints(svc)
+		e, err = endpoint.NewEndpoints(svc)
 		if err != nil {
 			fatal(logger, fmt.Errorf("failed to create endpoints: %w", err))
 		}
@@ -64,7 +68,7 @@ func main() {
 	var httpHandler http.Handler
 	{
 		var err error
-		httpHandler, err = NewHTTPHandler(e)
+		httpHandler, err = transport.NewHTTPHandler(e)
 		if err != nil {
 			fatal(logger, fmt.Errorf("failed to create http handler: %w", err))
 		}
@@ -73,7 +77,7 @@ func main() {
 	var kafkaHandler kafka.Handler
 	{
 		var err error
-		kafkaHandler, err = NewKafkaHandler(e)
+		kafkaHandler, err = transport.NewKafkaHandler(e)
 		if err != nil {
 			fatal(logger, fmt.Errorf("failed to init kafka handler: %w", err))
 		}
@@ -117,7 +121,6 @@ func main() {
 			kafka.ListenerErrorLogger(
 				log.With(logger, "component", "listener"),
 			),
-			kafka.ListenerReadTimeout(1*time.Second),
 		)
 		if err != nil {
 			fatal(logger, fmt.Errorf("failed to init kafka listener: %w", err))

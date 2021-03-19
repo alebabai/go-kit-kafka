@@ -1,23 +1,15 @@
-package main
+package endpoint
 
 import (
 	"context"
 	"fmt"
 
 	"github.com/go-kit/kit/endpoint"
+
+	"github.com/alebabai/go-kit-kafka/examples/confluent/producer"
 )
 
-type Endpoints struct {
-	GenerateEventEndpoint endpoint.Endpoint
-}
-
-func NewEndpoints(svc Service) (*Endpoints, error) {
-	return &Endpoints{
-		GenerateEventEndpoint: makeGenerateEventEndpoint(svc),
-	}, nil
-}
-
-func makeGenerateEventEndpoint(svc Service) endpoint.Endpoint {
+func MakeGenerateEventEndpoint(svc producer.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		_ = request.(GenerateEventRequest)
 
