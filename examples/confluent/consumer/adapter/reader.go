@@ -28,19 +28,12 @@ func NewReader(c consumer) (*Reader, error) {
 }
 
 func (r *Reader) ReadMessage(ctx context.Context, timeout time.Duration) (kitkafka.Message, error) {
-	for {
-		select {
-		case <-ctx.Done():
-			return nil, ctx.Err()
-		default:
-			msg, err := r.consumer.ReadMessage(timeout)
-			if err != nil {
-				return nil, err
-			}
-
-			return NewMessage(msg), nil
-		}
+	msg, err := r.consumer.ReadMessage(timeout)
+	if err != nil {
+		return nil, err
 	}
+
+	return NewMessage(msg), nil
 }
 
 func (r *Reader) Close() error {
