@@ -94,6 +94,8 @@ func main() {
 			"bootstrap.servers":  brokerAddr,
 			"group.id":           "events-group",
 			"enable.auto.commit": true,
+			//"go.events.channel.enable":        true,
+			//"go.application.rebalance.enable": true,
 		})
 		if err != nil {
 			fatal(logger, fmt.Errorf("failed to init kafka consumer: %w", err))
@@ -106,7 +108,7 @@ func main() {
 			fatal(logger, fmt.Errorf("failed to subscribe to topics: %w", err))
 		}
 
-		r, err := adapter.NewReader(c)
+		r, err := adapter.NewFunctionReader(c)
 		if err != nil {
 			fatal(logger, fmt.Errorf("failed to init kafka reader: %w", err))
 		}
