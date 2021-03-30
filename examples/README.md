@@ -5,6 +5,7 @@
 ## Implementations
 
 - [confluent](confluent)
+- [sarama](sarama)
 
 ## Reference
 
@@ -22,7 +23,7 @@
 Bootstrap full project using docker-compose:
 
 ```bash
-docker-compose -f <example> up
+docker-compose -f <example>/docker-compose.yml up
 ```
 
 To produce an event send the following request:
