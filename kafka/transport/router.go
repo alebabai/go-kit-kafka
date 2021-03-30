@@ -7,37 +7,41 @@ import (
 	"github.com/alebabai/go-kit-kafka/kafka"
 )
 
-// HandlersMapping represents Topic -> []Handler mapping
-type HandlersMapping map[string][]kafka.Handler
+// Handlers represents Topic -> []Handler mapping
+type Handlers map[string][]kafka.Handler
 
 type Router struct {
-	handlersMapping HandlersMapping
+	handlers Handlers
 }
 
-func NewRouter(opts ...RouterOption) (*Router, error) {
+func NewRouter(opts ...RouterOption) *Router {
 	r := &Router{
-		handlersMapping: make(HandlersMapping),
+		handlers: make(Handlers),
 	}
 
 	for _, opt := range opts {
 		opt(r)
 	}
 
-	return r, nil
+	return r
 }
 
 func (r *Router) AddHandler(topic string, handler kafka.Handler) *Router {
-	if len(r.handlersMapping) == 0 {
-		r.handlersMapping = make(HandlersMapping)
+	if len(r.handlers) == 0 {
+		r.handlers = make(Handlers)
 	}
 
-	r.handlersMapping[topic] = append(r.handlersMapping[topic], handler)
+	r.handlers[topic] = append(r.handlers[topic], handler)
 
 	return r
 }
 
+func (r *Router) Handlers() Handlers {
+	return r.handlers
+}
+
 func (r *Router) Handle(ctx context.Context, msg kafka.Message) error {
-	for _, h := range r.handlersMapping[msg.Topic()] {
+	for _, h := range r.handlers[msg.Topic()] {
 		if err := h.Handle(ctx, msg); err != nil {
 			return fmt.Errorf("failed to handle message from kafka topic=%s: %w", msg.Topic(), err)
 		}

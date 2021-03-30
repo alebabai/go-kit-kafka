@@ -22,7 +22,7 @@ func NewConsumer(
 	e endpoint.Endpoint,
 	dec DecodeRequestFunc,
 	opts ...ConsumerOption,
-) (*Consumer, error) {
+) *Consumer {
 	c := &Consumer{
 		e:   e,
 		dec: dec,
@@ -34,7 +34,7 @@ func NewConsumer(
 		opt(c)
 	}
 
-	return c, nil
+	return c
 }
 
 func (c *Consumer) Handle(ctx context.Context, msg kafka.Message) (err error) {

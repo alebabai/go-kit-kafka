@@ -11,3 +11,9 @@ func RouterWithHandler(topic string, handler kafka.Handler) RouterOption {
 		r.AddHandler(topic, handler)
 	}
 }
+
+func RouterWithHandlers(handlers Handlers) RouterOption {
+	return func(r *Router) {
+		r.handlers = handlers
+	}
+}
