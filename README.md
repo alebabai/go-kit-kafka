@@ -6,7 +6,7 @@
 [![version](https://img.shields.io/github/go-mod/go-version/alebabai/go-kit-kafka)](https://golang.org/)
 [![report](https://goreportcard.com/badge/github.com/alebabai/go-kit-kafka)](https://goreportcard.com/report/github.com/alebabai/go-kit-kafka)
 [![coverage](https://img.shields.io/codecov/c/github/alebabai/go-kit-kafka)](https://codecov.io/github/alebabai/go-kit-kafka)
-[![release](https://img.shields.io/github/release/alebabai/go-kit-kafka.svg)](https://github.com/alebabai/go-kit-kafka/releases)
+[![tag](https://img.shields.io/github/tag/alebabai/go-kit-kafka.svg)](https://github.com/alebabai/go-kit-kafka/tags)
 [![reference](https://pkg.go.dev/badge/github.com/alebabai/go-kit-kafka.svg)](https://pkg.go.dev/github.com/alebabai/go-kit-kafka)
 
 ## Getting started
