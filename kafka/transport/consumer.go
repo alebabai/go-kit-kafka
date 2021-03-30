@@ -24,9 +24,11 @@ func NewConsumer(
 	opts ...ConsumerOption,
 ) (*Consumer, error) {
 	c := &Consumer{
-		e:            e,
-		dec:          dec,
-		errorHandler: kafka.NewNoopErrorHandler(),
+		e:   e,
+		dec: dec,
+		errorHandler: transport.ErrorHandlerFunc(func(ctx context.Context, err error) {
+			// noop
+		}),
 	}
 	for _, opt := range opts {
 		opt(c)

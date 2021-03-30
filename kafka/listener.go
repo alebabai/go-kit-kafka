@@ -35,7 +35,9 @@ func NewListener(reader Reader, handlers Handlers, opts ...ListenerOption) (*Lis
 		handlers:    handlers,
 		readTimeout: -1,
 
-		errorHandler: NewNoopErrorHandler(),
+		errorHandler: transport.ErrorHandlerFunc(func(ctx context.Context, err error) {
+			// noop
+		}),
 	}
 
 	for _, opt := range opts {
