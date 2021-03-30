@@ -17,22 +17,22 @@ type HeadersTextMapCarrier struct {
 	headers []kafka.Header
 }
 
-type headerAdapter struct {
-	key   string
+type header struct {
+	key   []byte
 	value []byte
 }
 
-func (a headerAdapter) Key() string {
+func (a header) Key() []byte {
 	return a.key
 }
 
-func (a headerAdapter) Value() []byte {
+func (a header) Value() []byte {
 	return a.value
 }
 
 func (c HeadersTextMapCarrier) ForeachKey(handler func(key string, val string) error) error {
 	for _, h := range c.headers {
-		if err := handler(h.Key(), string(h.Value())); err != nil {
+		if err := handler(string(h.Key()), string(h.Value())); err != nil {
 			return err
 		}
 	}
@@ -42,16 +42,16 @@ func (c HeadersTextMapCarrier) ForeachKey(handler func(key string, val string) e
 
 func (c *HeadersTextMapCarrier) Set(key, val string) {
 	for i := range c.headers {
-		if c.headers[i].Key() == key {
-			c.headers[i] = &headerAdapter{
-				key:   key,
+		if string(c.headers[i].Key()) == key {
+			c.headers[i] = &header{
+				key:   []byte(key),
 				value: []byte(val),
 			}
 			return
 		}
 	}
-	c.headers = append(c.headers, &headerAdapter{
-		key:   key,
+	c.headers = append(c.headers, &header{
+		key:   []byte(key),
 		value: []byte(val),
 	})
 }

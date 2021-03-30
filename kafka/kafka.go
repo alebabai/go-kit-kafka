@@ -8,7 +8,7 @@ import (
 
 type Message interface {
 	Topic() string
-	Partition() int
+	Partition() int32
 	Offset() int64
 	Key() []byte
 	Value() []byte
@@ -17,7 +17,7 @@ type Message interface {
 }
 
 type Header interface {
-	Key() string
+	Key() []byte
 	Value() []byte
 }
 
