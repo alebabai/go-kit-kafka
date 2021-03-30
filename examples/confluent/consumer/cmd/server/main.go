@@ -13,7 +13,6 @@ import (
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 
-	"github.com/alebabai/go-kit-kafka/kafka"
 	kafkatransport "github.com/alebabai/go-kit-kafka/kafka/transport"
 
 	"github.com/alebabai/go-kit-kafka/examples/confluent/consumer"
@@ -72,14 +71,7 @@ func main() {
 
 	_ = logger.Log("msg", "initializing kafka handlers")
 
-	var kafkaHandler kafka.Handler
-	{
-		var err error
-		kafkaHandler, err = transport.NewKafkaHandler(endpoints)
-		if err != nil {
-			fatal(logger, fmt.Errorf("failed to init kafka handler: %w", err))
-		}
-	}
+	kafkaHandler := transport.NewKafkaHandler(endpoints)
 
 	_ = logger.Log("msg", "initializing kafka consumer")
 
@@ -99,17 +91,18 @@ func main() {
 			fatal(logger, fmt.Errorf("failed to init kafka consumer: %w", err))
 		}
 
+		defer func() {
+			if err := c.Close(); err != nil {
+				fatal(logger, fmt.Errorf("failed to close kafka consumer: %w", err))
+			}
+		}()
+
 		// use a router in case if there are many topics
-		handlers := map[string]kafka.Handler{
-			domain.Topic: kafkaHandler,
-		}
-		router, err := kafkatransport.NewRouter(handlers)
-		if err != nil {
-			fatal(logger, fmt.Errorf("failed to init kafka router: %w", err))
-		}
+		router := kafkatransport.NewRouter()
+		router.AddHandler(domain.Topic, kafkaHandler)
 
 		topics := make([]string, 0)
-		for topic := range handlers {
+		for topic := range router.Handlers() {
 			topics = append(topics, topic)
 		}
 
@@ -131,23 +124,20 @@ func main() {
 
 	_ = logger.Log("msg", "initializing http handler")
 
-	var httpHandler http.Handler
-	{
-		var err error
-		httpHandler, err = transport.NewHTTPHandler(endpoints)
-		if err != nil {
-			fatal(logger, fmt.Errorf("failed to create http handler: %w", err))
-		}
-	}
+	httpHandler := transport.NewHTTPHandler(endpoints)
 
 	errc := make(chan error, 1)
 
 	go func() {
-		errc <- kafkaListener.Listen(ctx)
+		if err := kafkaListener.Listen(ctx); err != nil {
+			errc <- err
+		}
 	}()
 
 	go func() {
-		errc <- http.ListenAndServe(":8081", httpHandler)
+		if err := http.ListenAndServe(":8081", httpHandler); err != nil {
+			errc <- err
+		}
 	}()
 
 	go func() {

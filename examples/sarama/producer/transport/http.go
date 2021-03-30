@@ -13,12 +13,12 @@ import (
 	"github.com/alebabai/go-kit-kafka/examples/sarama/producer/endpoint"
 )
 
-func NewHTTPHandler(e kitendpoint.Endpoint) (http.Handler, error) {
-	r := mux.
+func NewHTTPHandler(e kitendpoint.Endpoint) http.Handler {
+	router := mux.
 		NewRouter().
 		StrictSlash(true)
 
-	r.
+	router.
 		Path("/events").
 		Methods("POST").
 		Handler(httptransport.NewServer(
@@ -27,7 +27,7 @@ func NewHTTPHandler(e kitendpoint.Endpoint) (http.Handler, error) {
 			encodeGenerateEventResponse,
 		))
 
-	return r, nil
+	return router
 }
 
 func decodeGenerateEventRequest(_ context.Context, _ *http.Request) (interface{}, error) {

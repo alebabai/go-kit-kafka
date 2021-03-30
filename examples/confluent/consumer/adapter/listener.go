@@ -21,7 +21,7 @@ type consumer interface {
 
 type Listener struct {
 	consumer consumer
-	kitkafka.Handler
+	handler  kitkafka.Handler
 
 	readTimeout time.Duration
 
@@ -38,7 +38,7 @@ func NewListener(consumer consumer, handler kitkafka.Handler, opts ...ListenerOp
 
 	l := &Listener{
 		consumer: consumer,
-		Handler:  handler,
+		handler:  handler,
 
 		readTimeout: -1,
 		errorHandler: transport.ErrorHandlerFunc(func(context.Context, error) {
@@ -66,19 +66,11 @@ func (l *Listener) Listen(ctx context.Context) error {
 				continue
 			}
 
-			if err := l.Handler.Handle(ctx, NewMessage(msg)); err != nil {
+			if err := l.handler.Handle(ctx, NewMessage(msg)); err != nil {
 				err = fmt.Errorf("failed to handle kafka message: %w", err)
 				l.errorHandler.Handle(ctx, err)
 				continue
 			}
 		}
 	}
-}
-
-func (l *Listener) Close() error {
-	if l.consumer != nil {
-		return l.consumer.Close()
-	}
-
-	return nil
 }

@@ -11,12 +11,12 @@ import (
 	"github.com/alebabai/go-kit-kafka/examples/confluent/consumer/endpoint"
 )
 
-func NewHTTPHandler(endpoints *endpoint.Endpoints) (http.Handler, error) {
-	r := mux.
+func NewHTTPHandler(endpoints *endpoint.Endpoints) http.Handler {
+	router := mux.
 		NewRouter().
 		StrictSlash(true)
 
-	r.
+	router.
 		Path("/events").
 		Methods("GET").
 		Handler(httptransport.NewServer(
@@ -25,7 +25,7 @@ func NewHTTPHandler(endpoints *endpoint.Endpoints) (http.Handler, error) {
 			encodeListEventsResponse,
 		))
 
-	return r, nil
+	return router
 }
 
 func decodeListEventsRequest(_ context.Context, _ *http.Request) (interface{}, error) {

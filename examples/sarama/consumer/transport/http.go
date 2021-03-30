@@ -11,7 +11,7 @@ import (
 	"github.com/alebabai/go-kit-kafka/examples/sarama/consumer/endpoint"
 )
 
-func NewHTTPHandler(endpoints *endpoint.Endpoints) (http.Handler, error) {
+func NewHTTPHandler(endpoints *endpoint.Endpoints) http.Handler {
 	r := mux.
 		NewRouter().
 		StrictSlash(true)
@@ -25,7 +25,7 @@ func NewHTTPHandler(endpoints *endpoint.Endpoints) (http.Handler, error) {
 			encodeListEventsResponse,
 		))
 
-	return r, nil
+	return r
 }
 
 func decodeListEventsRequest(_ context.Context, _ *http.Request) (interface{}, error) {

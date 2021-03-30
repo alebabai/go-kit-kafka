@@ -91,17 +91,15 @@ func main() {
 		e := endpoint.MakeGenerateEventEndpoint(svc)
 		e = producerMiddleware(e)
 
-		var err error
-		httpHandler, err = transport.NewHTTPHandler(e)
-		if err != nil {
-			fatal(logger, fmt.Errorf("failed to create http handler: %w", err))
-		}
+		httpHandler = transport.NewHTTPHandler(e)
 	}
 
 	errc := make(chan error, 1)
 
 	go func() {
-		errc <- http.ListenAndServe(":8080", httpHandler)
+		if err := http.ListenAndServe(":8080", httpHandler); err != nil {
+			errc <- err
+		}
 	}()
 
 	go func() {
