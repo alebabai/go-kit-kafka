@@ -47,19 +47,19 @@ func main() {
 
 	var svc consumer.Service
 	{
-		s, err := service.NewStorageService(
+		storageSvc, err := service.NewStorageService(
 			log.With(logger, "component", "storage_service"),
 		)
 		if err != nil {
 			fatal(logger, fmt.Errorf("failed to init storage: %w", err))
 		}
-		svc = s
+		svc = storageSvc
 	}
 
-	var e *endpoint.Endpoints
+	var endpoints *endpoint.Endpoints
 	{
 		var err error
-		e, err = endpoint.NewEndpoints(svc)
+		endpoints, err = endpoint.NewEndpoints(svc)
 		if err != nil {
 			fatal(logger, fmt.Errorf("failed to create endpoints: %w", err))
 		}
@@ -68,7 +68,7 @@ func main() {
 	var httpHandler http.Handler
 	{
 		var err error
-		httpHandler, err = transport.NewHTTPHandler(e)
+		httpHandler, err = transport.NewHTTPHandler(endpoints)
 		if err != nil {
 			fatal(logger, fmt.Errorf("failed to create http handler: %w", err))
 		}
@@ -77,7 +77,7 @@ func main() {
 	var kafkaHandler kafka.Handler
 	{
 		var err error
-		kafkaHandler, err = transport.NewKafkaHandler(e)
+		kafkaHandler, err = transport.NewKafkaHandler(endpoints)
 		if err != nil {
 			fatal(logger, fmt.Errorf("failed to init kafka handler: %w", err))
 		}
@@ -92,13 +92,13 @@ func main() {
 
 		c, err := ckafka.NewConsumer(&ckafka.ConfigMap{
 			"bootstrap.servers":  brokerAddr,
-			"group.id":           "events-group",
+			"group.id":           domain.GroupID,
 			"enable.auto.commit": true,
 			//"go.events.channel.enable":        true,
 			//"go.application.rebalance.enable": true,
 		})
 		if err != nil {
-			fatal(logger, fmt.Errorf("failed to init kafka consumer: %w", err))
+			fatal(logger, fmt.Errorf("failed to init kafka c: %w", err))
 		}
 
 		topics := []string{
@@ -108,7 +108,7 @@ func main() {
 			fatal(logger, fmt.Errorf("failed to subscribe to topics: %w", err))
 		}
 
-		r, err := adapter.NewFunctionReader(c)
+		reader, err := adapter.NewFunctionReader(c)
 		if err != nil {
 			fatal(logger, fmt.Errorf("failed to init kafka reader: %w", err))
 		}
@@ -118,7 +118,7 @@ func main() {
 		}
 
 		kafkaListener, err = kafka.NewListener(
-			r,
+			reader,
 			handlers,
 			kafka.ListenerErrorLogger(
 				log.With(logger, "component", "listener"),
