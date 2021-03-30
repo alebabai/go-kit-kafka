@@ -2,11 +2,13 @@ package transport
 
 import (
 	"context"
-	"github.com/alebabai/go-kit-kafka/examples/confluent/consumer/endpoint"
-	"github.com/gorilla/mux"
 	"net/http"
 
+	"github.com/gorilla/mux"
+
 	httptransport "github.com/go-kit/kit/transport/http"
+
+	"github.com/alebabai/go-kit-kafka/examples/confluent/consumer/endpoint"
 )
 
 func NewHTTPHandler(endpoints *endpoint.Endpoints) (http.Handler, error) {

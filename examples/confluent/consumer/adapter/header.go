@@ -14,8 +14,8 @@ func NewHeader(h *kafka.Header) *Header {
 	}
 }
 
-func (h *Header) Key() string {
-	return h.h.Key
+func (h *Header) Key() []byte {
+	return []byte(h.h.Key)
 }
 
 func (h *Header) Value() []byte {

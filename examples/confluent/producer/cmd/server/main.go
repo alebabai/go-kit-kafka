@@ -34,6 +34,8 @@ func main() {
 		logger = log.With(logger, "ts", log.DefaultTimestampUTC)
 	}
 
+	_ = logger.Log("msg", "initializing services")
+
 	var svc producer.Service
 	{
 		var err error
@@ -42,6 +44,8 @@ func main() {
 			fatal(logger, fmt.Errorf("failed to create generator: %w", err))
 		}
 	}
+
+	_ = logger.Log("msg", "initializing kafka producer")
 
 	var producerMiddleware kitendpoint.Middleware
 	{
@@ -66,17 +70,15 @@ func main() {
 		)
 	}
 
-	var genEndpoint kitendpoint.Endpoint
-	{
-		e := endpoint.MakeGenerateEventEndpoint(svc)
-		e = producerMiddleware(e)
-		genEndpoint = e
-	}
+	_ = logger.Log("msg", "initializing http handler")
 
 	var httpHandler http.Handler
 	{
+		e := endpoint.MakeGenerateEventEndpoint(svc)
+		e = producerMiddleware(e)
+
 		var err error
-		httpHandler, err = transport.NewHTTPHandler(genEndpoint)
+		httpHandler, err = transport.NewHTTPHandler(e)
 		if err != nil {
 			fatal(logger, fmt.Errorf("failed to create http handler: %w", err))
 		}
@@ -94,5 +96,6 @@ func main() {
 		errc <- fmt.Errorf("%s", <-sigc)
 	}()
 
-	_ = logger.Log("exit", <-errc)
+	_ = logger.Log("msg", "application started")
+	_ = logger.Log("msg", "application stopped", "exit", <-errc)
 }

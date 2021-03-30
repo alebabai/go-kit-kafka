@@ -4,11 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/alebabai/go-kit-kafka/examples/confluent/consumer/endpoint"
 
 	"github.com/alebabai/go-kit-kafka/kafka"
 	"github.com/alebabai/go-kit-kafka/kafka/transport"
 
+	"github.com/alebabai/go-kit-kafka/examples/confluent/consumer/endpoint"
 	"github.com/alebabai/go-kit-kafka/examples/confluent/domain"
 )
 

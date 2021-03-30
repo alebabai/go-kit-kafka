@@ -22,8 +22,8 @@ func (m *Message) Topic() string {
 	return *m.msg.TopicPartition.Topic
 }
 
-func (m *Message) Partition() int {
-	return int(m.msg.TopicPartition.Partition)
+func (m *Message) Partition() int32 {
+	return m.msg.TopicPartition.Partition
 }
 
 func (m *Message) Offset() int64 {

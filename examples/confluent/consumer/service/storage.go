@@ -26,10 +26,10 @@ func NewStorageService(logger log.Logger) (*StorageService, error) {
 }
 
 func (s *StorageService) Create(_ context.Context, e domain.Event) error {
-	_ = s.logger.Log("msg", "saving an domain.Event", "event_id", e.ID)
+	_ = s.logger.Log("msg", "saving an event", "event_id", e.ID)
 
 	if _, ok := s.events[e.ID]; ok {
-		return fmt.Errorf("domain.Event with id=%v already exists", e.ID)
+		return fmt.Errorf("event with id=%v already exists", e.ID)
 	}
 
 	s.m.Lock()
