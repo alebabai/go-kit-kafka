@@ -2,7 +2,6 @@ package kafka
 
 import (
 	"context"
-	"io"
 	"time"
 )
 
@@ -19,11 +18,6 @@ type Message interface {
 type Header interface {
 	Key() []byte
 	Value() []byte
-}
-
-type Reader interface {
-	ReadMessage(ctx context.Context, timeout time.Duration) (Message, error)
-	io.Closer
 }
 
 type Handler interface {
