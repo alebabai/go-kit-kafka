@@ -75,7 +75,7 @@ func main() {
 
 	_ = logger.Log("msg", "initializing kafka consumer")
 
-	var kafkaConsumerGroup sarama.ConsumerGroup
+	var kafkaListener *adapter.Listener
 	{
 		cfg := sarama.NewConfig()
 		cfg.Consumer.Offsets.Initial = sarama.OffsetOldest
@@ -94,16 +94,35 @@ func main() {
 			fatal(logger, fmt.Errorf("failed to init kafka client: %w", err))
 		}
 
-		kafkaConsumerGroup, err = sarama.NewConsumerGroupFromClient(domain.GroupID, client)
+		consumerGroup, err := sarama.NewConsumerGroupFromClient(domain.GroupID, client)
 		if err != nil {
-			fatal(logger, fmt.Errorf("failed to init kafka consumer: %w", err))
+			fatal(logger, fmt.Errorf("failed to init kafka consumer group: %w", err))
 		}
 
 		defer func() {
-			if err := kafkaConsumerGroup.Close(); err != nil {
+			if err := consumerGroup.Close(); err != nil {
 				fatal(logger, fmt.Errorf("failed to close kafka consumer group: %w", err))
 			}
 		}()
+
+		// use a router in case if there are many topics
+		router := kafkatransport.NewRouter()
+		router.AddHandler(domain.Topic, kafkaHandler)
+
+		topics := make([]string, 0)
+		for topic := range router.Handlers() {
+			topics = append(topics, topic)
+		}
+
+		consumerGroupHandler, err := adapter.NewConsumerGroupHandler(router)
+		if err != nil {
+			fatal(logger, fmt.Errorf("failed to init kafka consumer group handler: %w", err))
+		}
+
+		kafkaListener, err = adapter.NewListener(topics, consumerGroup, consumerGroupHandler)
+		if err != nil {
+			fatal(logger, fmt.Errorf("failed to init kafka listener: %w", err))
+		}
 	}
 
 	_ = logger.Log("msg", "initializing http handler")
@@ -113,24 +132,8 @@ func main() {
 	errc := make(chan error, 1)
 
 	go func() {
-		// use a router in case if there are many topics
-		router := kafkatransport.NewRouter()
-		router.AddHandler(domain.Topic, kafkaHandler)
-
-		cgHandler, err := adapter.NewConsumerGroupHandler(router)
-		if err != nil {
-			fatal(logger, fmt.Errorf("failed to init kafka consumer group: %w", err))
-		}
-
-		topics := make([]string, 0)
-		for topic := range router.Handlers() {
-			topics = append(topics, topic)
-		}
-
-		for {
-			if err := kafkaConsumerGroup.Consume(ctx, topics, cgHandler); err != nil {
-				errc <- err
-			}
+		if err := kafkaListener.Listen(ctx); err != nil {
+			errc <- err
 		}
 	}()
 
