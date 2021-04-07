@@ -70,6 +70,15 @@ func main() {
 		)
 	}
 
+	var endpoints endpoint.Endpoints
+	{
+		endpoints = endpoint.Endpoints{
+			GenerateEvent: producerMiddleware(
+				endpoint.MakeGenerateEventEndpoint(svc),
+			),
+		}
+	}
+
 	_ = logger.Log("msg", "initializing http handler")
 
 	var httpHandler http.Handler
@@ -77,7 +86,7 @@ func main() {
 		e := endpoint.MakeGenerateEventEndpoint(svc)
 		e = producerMiddleware(e)
 
-		httpHandler = transport.NewHTTPHandler(e)
+		httpHandler = transport.NewHTTPHandler(endpoints)
 	}
 
 	errc := make(chan error, 1)

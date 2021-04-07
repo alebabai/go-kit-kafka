@@ -11,7 +11,7 @@ import (
 	"github.com/alebabai/go-kit-kafka/examples/confluent/consumer/endpoint"
 )
 
-func NewHTTPHandler(endpoints *endpoint.Endpoints) http.Handler {
+func NewHTTPHandler(endpoints endpoint.Endpoints) http.Handler {
 	router := mux.
 		NewRouter().
 		StrictSlash(true)

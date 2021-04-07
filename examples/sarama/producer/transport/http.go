@@ -7,13 +7,12 @@ import (
 
 	"github.com/gorilla/mux"
 
-	kitendpoint "github.com/go-kit/kit/endpoint"
 	httptransport "github.com/go-kit/kit/transport/http"
 
 	"github.com/alebabai/go-kit-kafka/examples/sarama/producer/endpoint"
 )
 
-func NewHTTPHandler(e kitendpoint.Endpoint) http.Handler {
+func NewHTTPHandler(endpoints endpoint.Endpoints) http.Handler {
 	router := mux.
 		NewRouter().
 		StrictSlash(true)
@@ -22,7 +21,7 @@ func NewHTTPHandler(e kitendpoint.Endpoint) http.Handler {
 		Path("/events").
 		Methods("POST").
 		Handler(httptransport.NewServer(
-			e,
+			endpoints.GenerateEvent,
 			decodeGenerateEventRequest,
 			encodeGenerateEventResponse,
 		))

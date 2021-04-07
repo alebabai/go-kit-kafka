@@ -14,14 +14,7 @@ type Endpoints struct {
 	ListEventsEndpoint  endpoint.Endpoint
 }
 
-func NewEndpoints(svc consumer.Service) (*Endpoints, error) {
-	return &Endpoints{
-		CreateEventEndpoint: makeCreateEventEndpoint(svc),
-		ListEventsEndpoint:  makeListEventsEndpoint(svc),
-	}, nil
-}
-
-func makeCreateEventEndpoint(svc consumer.Service) endpoint.Endpoint {
+func MakeCreateEventEndpoint(svc consumer.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(CreateEventRequest)
 
@@ -33,7 +26,7 @@ func makeCreateEventEndpoint(svc consumer.Service) endpoint.Endpoint {
 	}
 }
 
-func makeListEventsEndpoint(svc consumer.Service) endpoint.Endpoint {
+func MakeListEventsEndpoint(svc consumer.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		_ = request.(ListEventsRequest)
 

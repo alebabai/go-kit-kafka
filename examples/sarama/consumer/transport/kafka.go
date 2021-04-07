@@ -12,7 +12,7 @@ import (
 	"github.com/alebabai/go-kit-kafka/examples/sarama/domain"
 )
 
-func NewKafkaHandler(e *endpoint.Endpoints) kafka.Handler {
+func NewKafkaHandler(e endpoint.Endpoints) kafka.Handler {
 	return transport.NewConsumer(e.CreateEventEndpoint, decodeCreateEventRequest)
 }
 

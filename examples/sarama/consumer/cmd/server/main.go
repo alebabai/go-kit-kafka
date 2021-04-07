@@ -60,12 +60,11 @@ func main() {
 		svc = storageSvc
 	}
 
-	var endpoints *endpoint.Endpoints
+	var endpoints endpoint.Endpoints
 	{
-		var err error
-		endpoints, err = endpoint.NewEndpoints(svc)
-		if err != nil {
-			fatal(logger, fmt.Errorf("failed to create endpoints: %w", err))
+		endpoints = endpoint.Endpoints{
+			CreateEventEndpoint: endpoint.MakeCreateEventEndpoint(svc),
+			ListEventsEndpoint:  endpoint.MakeListEventsEndpoint(svc),
 		}
 	}
 

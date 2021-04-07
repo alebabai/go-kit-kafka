@@ -11,7 +11,7 @@ import (
 	"github.com/alebabai/go-kit-kafka/examples/sarama/consumer/endpoint"
 )
 
-func NewHTTPHandler(endpoints *endpoint.Endpoints) http.Handler {
+func NewHTTPHandler(endpoints endpoint.Endpoints) http.Handler {
 	r := mux.
 		NewRouter().
 		StrictSlash(true)
