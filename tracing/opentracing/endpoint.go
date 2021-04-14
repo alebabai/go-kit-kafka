@@ -56,9 +56,12 @@ func TraceEndpoint(tracer opentracing.Tracer, operationName string, opts ...Endp
 }
 
 func TraceConsumer(tracer opentracing.Tracer, operationName string, opts ...EndpointOption) endpoint.Middleware {
-	opts = append(opts, WithTags(map[string]interface{}{
-		ext.SpanKindConsumer.Key: ext.SpanKindConsumer.Value,
-	}))
+	opts = append(
+		opts,
+		WithTags(map[string]interface{}{
+			ext.SpanKindConsumer.Key: ext.SpanKindConsumer.Value,
+		}),
+	)
 
 	return TraceEndpoint(tracer, operationName, opts...)
 }
