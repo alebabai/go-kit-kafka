@@ -37,7 +37,7 @@ func NewConsumer(
 	return c
 }
 
-func (c *Consumer) Handle(ctx context.Context, msg kafka.Message) (err error) {
+func (c Consumer) Handle(ctx context.Context, msg kafka.Message) (err error) {
 	if len(c.finalizer) > 0 {
 		defer func() {
 			for _, f := range c.finalizer {
