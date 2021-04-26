@@ -56,7 +56,7 @@ func (c *HeadersTextMapCarrier) Set(key, val string) {
 	})
 }
 
-func ContextToKafka(tracer opentracing.Tracer, logger log.Logger) transport.ConsumerRequestFunc {
+func ContextToKafka(tracer opentracing.Tracer, logger log.Logger) transport.RequestFunc {
 	return func(ctx context.Context, msg kafka.Message) context.Context {
 		if span := opentracing.SpanFromContext(ctx); span != nil {
 			if err := tracer.Inject(
@@ -75,7 +75,7 @@ func ContextToKafka(tracer opentracing.Tracer, logger log.Logger) transport.Cons
 	}
 }
 
-func KafkaToContext(tracer opentracing.Tracer, operationName string, logger log.Logger) transport.ConsumerRequestFunc {
+func KafkaToContext(tracer opentracing.Tracer, operationName string, logger log.Logger) transport.RequestFunc {
 	return func(ctx context.Context, msg kafka.Message) context.Context {
 		var consumerSpan opentracing.Span
 		wireContext, err := tracer.Extract(

@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/go-kit/kit/endpoint"
+	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/transport"
 
 	"github.com/alebabai/go-kit-kafka/kafka"
@@ -12,7 +13,7 @@ import (
 type Consumer struct {
 	e            endpoint.Endpoint
 	dec          DecodeRequestFunc
-	before       []ConsumerRequestFunc
+	before       []RequestFunc
 	after        []ConsumerResponseFunc
 	finalizer    []ConsumerFinalizerFunc
 	errorHandler transport.ErrorHandler
@@ -35,6 +36,32 @@ func NewConsumer(
 	}
 
 	return c
+}
+
+type ConsumerOption func(consumer *Consumer)
+
+func ConsumerBefore(before ...RequestFunc) ConsumerOption {
+	return func(c *Consumer) {
+		c.before = append(c.before, before...)
+	}
+}
+
+func ConsumerAfter(after ...ConsumerResponseFunc) ConsumerOption {
+	return func(c *Consumer) {
+		c.after = append(c.after, after...)
+	}
+}
+
+func ConsumerErrorLogger(logger log.Logger) ConsumerOption {
+	return func(c *Consumer) {
+		c.errorHandler = transport.NewLogErrorHandler(logger)
+	}
+}
+
+func ConsumerErrorHandler(errorHandler transport.ErrorHandler) ConsumerOption {
+	return func(c *Consumer) {
+		c.errorHandler = errorHandler
+	}
 }
 
 func (c Consumer) Handle(ctx context.Context, msg kafka.Message) (err error) {
@@ -68,3 +95,5 @@ func (c Consumer) Handle(ctx context.Context, msg kafka.Message) (err error) {
 
 	return nil
 }
+
+type ConsumerFinalizerFunc func(ctx context.Context, msg kafka.Message, err error)

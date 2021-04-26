@@ -26,6 +26,20 @@ func NewRouter(opts ...RouterOption) *Router {
 	return r
 }
 
+type RouterOption func(*Router)
+
+func RouterWithHandler(topic string, handler kafka.Handler) RouterOption {
+	return func(r *Router) {
+		r.AddHandler(topic, handler)
+	}
+}
+
+func RouterWithHandlers(handlers Handlers) RouterOption {
+	return func(r *Router) {
+		r.handlers = handlers
+	}
+}
+
 func (r *Router) AddHandler(topic string, handler kafka.Handler) *Router {
 	if len(r.handlers) == 0 {
 		r.handlers = make(Handlers)
@@ -43,7 +57,7 @@ func (r Router) Handlers() Handlers {
 func (r Router) Handle(ctx context.Context, msg kafka.Message) error {
 	for _, h := range r.handlers[msg.Topic()] {
 		if err := h.Handle(ctx, msg); err != nil {
-			return fmt.Errorf("failed to handle message from kafka topic=%s: %w", msg.Topic(), err)
+			return fmt.Errorf("failed to handle Message from kafka topic=%s: %w", msg.Topic(), err)
 		}
 	}
 
