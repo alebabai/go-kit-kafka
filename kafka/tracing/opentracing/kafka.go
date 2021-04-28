@@ -17,22 +17,9 @@ type HeadersTextMapCarrier struct {
 	headers []kafka.Header
 }
 
-type header struct {
-	key   []byte
-	value []byte
-}
-
-func (a header) Key() []byte {
-	return a.key
-}
-
-func (a header) Value() []byte {
-	return a.value
-}
-
 func (c HeadersTextMapCarrier) ForeachKey(handler func(key string, val string) error) error {
 	for _, h := range c.headers {
-		if err := handler(string(h.Key()), string(h.Value())); err != nil {
+		if err := handler(string(h.Key), string(h.Value)); err != nil {
 			return err
 		}
 	}
@@ -42,28 +29,28 @@ func (c HeadersTextMapCarrier) ForeachKey(handler func(key string, val string) e
 
 func (c *HeadersTextMapCarrier) Set(key, val string) {
 	for i := range c.headers {
-		if string(c.headers[i].Key()) == key {
-			c.headers[i] = &header{
-				key:   []byte(key),
-				value: []byte(val),
+		if string(c.headers[i].Key) == key {
+			c.headers[i] = kafka.Header{
+				Key:   []byte(key),
+				Value: []byte(val),
 			}
 			return
 		}
 	}
-	c.headers = append(c.headers, &header{
-		key:   []byte(key),
-		value: []byte(val),
+	c.headers = append(c.headers, kafka.Header{
+		Key:   []byte(key),
+		Value: []byte(val),
 	})
 }
 
 func ContextToKafka(tracer opentracing.Tracer, logger log.Logger) transport.RequestFunc {
-	return func(ctx context.Context, msg kafka.Message) context.Context {
+	return func(ctx context.Context, msg *kafka.Message) context.Context {
 		if span := opentracing.SpanFromContext(ctx); span != nil {
 			if err := tracer.Inject(
 				span.Context(),
 				opentracing.TextMap,
 				HeadersTextMapCarrier{
-					headers: msg.Headers(),
+					headers: msg.Headers,
 				},
 			); err != nil {
 				err = fmt.Errorf("failed to inject span context: %w", err)
@@ -76,12 +63,12 @@ func ContextToKafka(tracer opentracing.Tracer, logger log.Logger) transport.Requ
 }
 
 func KafkaToContext(tracer opentracing.Tracer, operationName string, logger log.Logger) transport.RequestFunc {
-	return func(ctx context.Context, msg kafka.Message) context.Context {
+	return func(ctx context.Context, msg *kafka.Message) context.Context {
 		var consumerSpan opentracing.Span
 		wireContext, err := tracer.Extract(
 			opentracing.TextMap,
 			HeadersTextMapCarrier{
-				headers: msg.Headers(),
+				headers: msg.Headers,
 			},
 		)
 		if err != nil && err != opentracing.ErrSpanContextNotFound {

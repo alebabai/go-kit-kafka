@@ -55,9 +55,9 @@ func (r Router) Handlers() Handlers {
 }
 
 func (r Router) Handle(ctx context.Context, msg kafka.Message) error {
-	for _, h := range r.handlers[msg.Topic()] {
+	for _, h := range r.handlers[msg.Topic] {
 		if err := h.Handle(ctx, msg); err != nil {
-			return fmt.Errorf("failed to handle Message from kafka topic=%s: %w", msg.Topic(), err)
+			return fmt.Errorf("failed to handle Message from kafka topic=%s: %w", msg.Topic, err)
 		}
 	}
 

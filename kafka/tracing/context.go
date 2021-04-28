@@ -15,9 +15,9 @@ const (
 )
 
 func MessageToContext(ctx context.Context, msg kafka.Message) context.Context {
-	ctx = context.WithValue(ctx, topicKey, msg.Topic())
-	ctx = context.WithValue(ctx, partitionKey, msg.Partition())
-	ctx = context.WithValue(ctx, offsetKey, msg.Offset())
+	ctx = context.WithValue(ctx, topicKey, msg.Topic)
+	ctx = context.WithValue(ctx, partitionKey, msg.Partition)
+	ctx = context.WithValue(ctx, offsetKey, msg.Offset)
 
 	return ctx
 }

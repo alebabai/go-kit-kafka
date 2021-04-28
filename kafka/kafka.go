@@ -5,19 +5,19 @@ import (
 	"time"
 )
 
-type Message interface {
-	Topic() string
-	Partition() int32
-	Offset() int64
-	Key() []byte
-	Value() []byte
-	Headers() []Header
-	Timestamp() time.Time
+type Message struct {
+	Topic     string
+	Partition int32
+	Offset    int64
+	Key       []byte
+	Value     []byte
+	Headers   []Header
+	Timestamp time.Time
 }
 
-type Header interface {
-	Key() []byte
-	Value() []byte
+type Header struct {
+	Key   []byte
+	Value []byte
 }
 
 type Handler interface {

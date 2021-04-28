@@ -64,17 +64,23 @@ func ConsumerErrorHandler(errorHandler transport.ErrorHandler) ConsumerOption {
 	}
 }
 
+func ConsumerFinalizer(f ...ConsumerFinalizerFunc) ConsumerOption {
+	return func(c *Consumer) {
+		c.finalizer = append(c.finalizer, f...)
+	}
+}
+
 func (c Consumer) Handle(ctx context.Context, msg kafka.Message) (err error) {
 	if len(c.finalizer) > 0 {
 		defer func() {
 			for _, f := range c.finalizer {
-				f(ctx, msg, err)
+				f(ctx, &msg, err)
 			}
 		}()
 	}
 
 	for _, f := range c.before {
-		ctx = f(ctx, msg)
+		ctx = f(ctx, &msg)
 	}
 
 	request, err := c.dec(ctx, msg)
@@ -96,4 +102,4 @@ func (c Consumer) Handle(ctx context.Context, msg kafka.Message) (err error) {
 	return nil
 }
 
-type ConsumerFinalizerFunc func(ctx context.Context, msg kafka.Message, err error)
+type ConsumerFinalizerFunc func(ctx context.Context, msg *kafka.Message, err error)
