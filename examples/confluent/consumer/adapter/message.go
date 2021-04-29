@@ -1,52 +1,31 @@
 package adapter
 
 import (
-	"time"
-
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 
 	kitkafka "github.com/alebabai/go-kit-kafka/kafka"
 )
 
-type Message struct {
-	msg *kafka.Message
-}
+func TransformMessage(msg kafka.Message) *kitkafka.Message {
+	headers := make([]kitkafka.Header, len(msg.Headers))
+	for i, h := range msg.Headers {
+		headers[i] = *transformHeader(h)
+	}
 
-func NewMessage(msg *kafka.Message) *Message {
-	return &Message{
-		msg: msg,
+	return &kitkafka.Message{
+		Topic:     *msg.TopicPartition.Topic,
+		Partition: msg.TopicPartition.Partition,
+		Offset:    int64(msg.TopicPartition.Offset),
+		Key:       msg.Key,
+		Value:     msg.Value,
+		Headers:   headers,
+		Timestamp: msg.Timestamp,
 	}
 }
 
-func (m *Message) Topic() string {
-	return *m.msg.TopicPartition.Topic
-}
-
-func (m *Message) Partition() int32 {
-	return m.msg.TopicPartition.Partition
-}
-
-func (m *Message) Offset() int64 {
-	return int64(m.msg.TopicPartition.Offset)
-}
-
-func (m *Message) Key() []byte {
-	return m.msg.Key
-}
-
-func (m *Message) Value() []byte {
-	return m.msg.Value
-}
-
-func (m *Message) Headers() []kitkafka.Header {
-	headers := make([]kitkafka.Header, 0)
-	for _, h := range m.msg.Headers {
-		headers = append(headers, NewHeader(&h))
+func transformHeader(header kafka.Header) *kitkafka.Header {
+	return &kitkafka.Header{
+		Key:   []byte(header.Key),
+		Value: header.Value,
 	}
-
-	return headers
-}
-
-func (m *Message) Timestamp() time.Time {
-	return m.msg.Timestamp
 }

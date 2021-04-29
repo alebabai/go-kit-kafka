@@ -9,6 +9,7 @@ import (
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 
+	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/transport"
 
 	kitkafka "github.com/alebabai/go-kit-kafka/kafka"
@@ -53,6 +54,26 @@ func NewListener(consumer consumer, handler kitkafka.Handler, opts ...ListenerOp
 	return l, nil
 }
 
+type ListenerOption func(*Listener)
+
+func ListenerErrorLogger(logger log.Logger) ListenerOption {
+	return func(l *Listener) {
+		l.errorHandler = transport.NewLogErrorHandler(logger)
+	}
+}
+
+func ListenerErrorHandler(errHandler transport.ErrorHandler) ListenerOption {
+	return func(l *Listener) {
+		l.errorHandler = errHandler
+	}
+}
+
+func ListenerReadTimeout(readTimeout time.Duration) ListenerOption {
+	return func(l *Listener) {
+		l.readTimeout = readTimeout
+	}
+}
+
 func (l *Listener) Listen(ctx context.Context) error {
 	for {
 		select {
@@ -66,7 +87,7 @@ func (l *Listener) Listen(ctx context.Context) error {
 				continue
 			}
 
-			if err := l.handler.Handle(ctx, NewMessage(msg)); err != nil {
+			if err := l.handler.Handle(ctx, *TransformMessage(*msg)); err != nil {
 				err = fmt.Errorf("failed to handle kafka message: %w", err)
 				l.errorHandler.Handle(ctx, err)
 				continue

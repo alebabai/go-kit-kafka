@@ -15,6 +15,7 @@ import (
 
 	"github.com/alebabai/go-kit-kafka/examples/confluent/domain"
 	"github.com/alebabai/go-kit-kafka/examples/confluent/producer"
+	"github.com/alebabai/go-kit-kafka/examples/confluent/producer/adapter"
 	"github.com/alebabai/go-kit-kafka/examples/confluent/producer/endpoint"
 	"github.com/alebabai/go-kit-kafka/examples/confluent/producer/service"
 	"github.com/alebabai/go-kit-kafka/examples/confluent/producer/transport"
@@ -63,11 +64,12 @@ func main() {
 		}
 		defer p.Close()
 
-		producerMiddleware = endpoint.ProducerMiddleware(
+		e := transport.NewKafkaProducer(
+			adapter.NewProducer(p),
 			domain.Topic,
-			p,
-			log.With(logger, "component", "producer_middleware"),
-		)
+		).Endpoint()
+
+		producerMiddleware = endpoint.ProducerMiddleware(e)
 	}
 
 	var endpoints endpoint.Endpoints
