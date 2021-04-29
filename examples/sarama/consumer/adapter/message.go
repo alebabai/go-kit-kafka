@@ -2,50 +2,30 @@ package adapter
 
 import (
 	"github.com/Shopify/sarama"
-	"time"
 
-	kitkafka "github.com/alebabai/go-kit-kafka/kafka"
+	"github.com/alebabai/go-kit-kafka/kafka"
 )
 
-type Message struct {
-	msg *sarama.ConsumerMessage
-}
+func TransformMessage(msg sarama.ConsumerMessage) *kafka.Message {
+	headers := make([]kafka.Header, len(msg.Headers))
+	for i, h := range msg.Headers {
+		headers[i] = *transformHeader(*h)
+	}
 
-func NewMessage(msg *sarama.ConsumerMessage) *Message {
-	return &Message{
-		msg: msg,
+	return &kafka.Message{
+		Topic:     msg.Topic,
+		Partition: msg.Partition,
+		Offset:    msg.Offset,
+		Key:       msg.Key,
+		Value:     msg.Value,
+		Headers:   headers,
+		Timestamp: msg.Timestamp,
 	}
 }
 
-func (m *Message) Topic() string {
-	return m.msg.Topic
-}
-
-func (m *Message) Partition() int32 {
-	return m.msg.Partition
-}
-
-func (m *Message) Offset() int64 {
-	return m.msg.Offset
-}
-
-func (m *Message) Key() []byte {
-	return m.msg.Key
-}
-
-func (m *Message) Value() []byte {
-	return m.msg.Value
-}
-
-func (m *Message) Headers() []kitkafka.Header {
-	headers := make([]kitkafka.Header, 0)
-	for _, h := range m.msg.Headers {
-		headers = append(headers, NewHeader(h))
+func transformHeader(header sarama.RecordHeader) *kafka.Header {
+	return &kafka.Header{
+		Key:   header.Key,
+		Value: header.Value,
 	}
-
-	return headers
-}
-
-func (m *Message) Timestamp() time.Time {
-	return m.msg.Timestamp
 }

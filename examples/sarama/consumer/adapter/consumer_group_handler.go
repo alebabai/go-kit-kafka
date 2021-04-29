@@ -47,7 +47,7 @@ func (h *ConsumerGroupHandler) Cleanup(_ sarama.ConsumerGroupSession) error {
 func (h *ConsumerGroupHandler) ConsumeClaim(session sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error {
 	ctx := session.Context()
 	for msg := range claim.Messages() {
-		if err := h.handler.Handle(ctx, NewMessage(msg)); err != nil {
+		if err := h.handler.Handle(ctx, *TransformMessage(*msg)); err != nil {
 			err = fmt.Errorf("failed to handle kafka message: %w", err)
 			h.errorHandler.Handle(ctx, err)
 			continue

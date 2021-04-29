@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/alebabai/go-kit-kafka/examples/sarama/producer/adapter"
 	"net/http"
 	"os"
 	"os/signal"
@@ -77,11 +78,12 @@ func main() {
 			}
 		}()
 
-		producerMiddleware = endpoint.ProducerMiddleware(
+		e := transport.NewKafkaProducer(
+			adapter.NewProducer(p),
 			domain.Topic,
-			p,
-			log.With(logger, "component", "producer_middleware"),
-		)
+		).Endpoint()
+
+		producerMiddleware = endpoint.ProducerMiddleware(e)
 	}
 
 	var endpoints endpoint.Endpoints
