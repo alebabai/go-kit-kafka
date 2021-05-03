@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/alebabai/go-kit-kafka/examples/sarama/producer/adapter"
 	"net/http"
 	"os"
 	"os/signal"
@@ -13,11 +12,13 @@ import (
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 
-	"github.com/alebabai/go-kit-kafka/examples/sarama/domain"
-	"github.com/alebabai/go-kit-kafka/examples/sarama/producer"
-	"github.com/alebabai/go-kit-kafka/examples/sarama/producer/endpoint"
-	"github.com/alebabai/go-kit-kafka/examples/sarama/producer/service"
-	"github.com/alebabai/go-kit-kafka/examples/sarama/producer/transport"
+	"github.com/alebabai/go-kit-kafka/examples/common/domain"
+	"github.com/alebabai/go-kit-kafka/examples/common/producer"
+	"github.com/alebabai/go-kit-kafka/examples/common/producer/endpoint"
+	"github.com/alebabai/go-kit-kafka/examples/common/producer/service"
+	"github.com/alebabai/go-kit-kafka/examples/common/producer/transport"
+
+	"github.com/alebabai/go-kit-kafka/examples/sarama/producer/adapter"
 )
 
 func fatal(logger log.Logger, err error) {
