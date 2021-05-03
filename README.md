@@ -27,7 +27,7 @@ import "github.com/alebabai/go-kit-kafka/kafka"
 
 ## Usage
 
-To use consumer/producer transport abstractions the following adapters for the chosen Apache Kafka
+To use consumer/producer transport abstractions converters to the following types from the chosen Apache Kafka
 client library should be implemented:
 
 ```go
