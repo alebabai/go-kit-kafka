@@ -10,23 +10,27 @@ import (
 )
 
 type Producer struct {
-	producer  kafka.Handler
+	handler   kafka.Handler
 	topic     string
+	response  interface{}
 	enc       EncodeRequestFunc
 	before    []RequestFunc
 	after     []ProducerResponseFunc
 	finalizer []ProducerFinalizerFunc
 }
 
+type successResponse struct{}
+
 func NewProducer(
-	producer kafka.Handler,
+	handler kafka.Handler,
 	topic string,
 	enc EncodeRequestFunc,
 	options ...ProducerOption,
 ) *Producer {
 	p := &Producer{
-		producer: producer,
+		handler:  handler,
 		topic:    topic,
+		response: successResponse{},
 		enc:      enc,
 	}
 	for _, opt := range options {
@@ -37,6 +41,12 @@ func NewProducer(
 }
 
 type ProducerOption func(consumer *Producer)
+
+func ProducerResponse(response interface{}) ProducerOption {
+	return func(p *Producer) {
+		p.response = response
+	}
+}
 
 func ProducerBefore(before ...RequestFunc) ProducerOption {
 	return func(p *Producer) {
@@ -55,8 +65,6 @@ func ProducerFinalizer(f ...ProducerFinalizerFunc) ProducerOption {
 		p.finalizer = append(p.finalizer, f...)
 	}
 }
-
-type successResponse struct{}
 
 func (p Producer) Endpoint() endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
@@ -82,7 +90,7 @@ func (p Producer) Endpoint() endpoint.Endpoint {
 			ctx = f(ctx, &msg)
 		}
 
-		if err := p.producer.Handle(ctx, msg); err != nil {
+		if err := p.handler.Handle(ctx, msg); err != nil {
 			return nil, err
 		}
 
@@ -90,7 +98,7 @@ func (p Producer) Endpoint() endpoint.Endpoint {
 			ctx = f(ctx)
 		}
 
-		return &successResponse{}, nil
+		return p.response, nil
 	}
 }
 

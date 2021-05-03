@@ -6,7 +6,7 @@ import (
 	"github.com/alebabai/go-kit-kafka/kafka"
 )
 
-type DecodeRequestFunc func(ctx context.Context, msg kafka.Message) (req interface{}, err error)
+type DecodeRequestFunc func(ctx context.Context, msg kafka.Message) (request interface{}, err error)
 
 type EncodeRequestFunc func(context.Context, *kafka.Message, interface{}) error
 
