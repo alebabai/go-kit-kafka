@@ -7,11 +7,29 @@ import (
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/ext"
 
+	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
+	kitopentracing "github.com/go-kit/kit/tracing/opentracing"
 
 	"github.com/alebabai/go-kit-kafka/kafka"
 	"github.com/alebabai/go-kit-kafka/kafka/transport"
 )
+
+func TraceConsumer(tracer opentracing.Tracer, operationName string, opts ...kitopentracing.EndpointOption) endpoint.Middleware {
+	opts = append(opts, kitopentracing.WithTags(map[string]interface{}{
+		ext.SpanKindConsumer.Key: ext.SpanKindConsumer.Value,
+	}))
+
+	return kitopentracing.TraceEndpoint(tracer, operationName, opts...)
+}
+
+func TraceProducer(tracer opentracing.Tracer, operationName string, opts ...kitopentracing.EndpointOption) endpoint.Middleware {
+	opts = append(opts, kitopentracing.WithTags(map[string]interface{}{
+		ext.SpanKindProducer.Key: ext.SpanKindProducer.Value,
+	}))
+
+	return kitopentracing.TraceEndpoint(tracer, operationName, opts...)
+}
 
 type HeadersTextMapCarrier struct {
 	headers []kafka.Header
