@@ -6,10 +6,10 @@ import (
 	"github.com/alebabai/go-kit-kafka/kafka"
 )
 
-func TransformMessage(msg sarama.ConsumerMessage) *kafka.Message {
+func TransformMessage(msg *sarama.ConsumerMessage) *kafka.Message {
 	headers := make([]kafka.Header, len(msg.Headers))
 	for i, h := range msg.Headers {
-		headers[i] = *transformHeader(*h)
+		headers[i] = transformHeader(*h)
 	}
 
 	return &kafka.Message{
@@ -23,8 +23,8 @@ func TransformMessage(msg sarama.ConsumerMessage) *kafka.Message {
 	}
 }
 
-func transformHeader(header sarama.RecordHeader) *kafka.Header {
-	return &kafka.Header{
+func transformHeader(header sarama.RecordHeader) kafka.Header {
+	return kafka.Header{
 		Key:   header.Key,
 		Value: header.Value,
 	}
