@@ -23,7 +23,7 @@ func NewProducer(producer producer) *Producer {
 	}
 }
 
-func (p *Producer) Handle(ctx context.Context, msg kitkafka.Message) error {
+func (p *Producer) Handle(ctx context.Context, msg *kitkafka.Message) error {
 	select {
 	case <-ctx.Done():
 		return fmt.Errorf("failed to produce message: %w", ctx.Err())

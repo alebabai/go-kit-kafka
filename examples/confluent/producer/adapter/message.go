@@ -6,10 +6,10 @@ import (
 	kitkafka "github.com/alebabai/go-kit-kafka/kafka"
 )
 
-func TransformMessage(msg kitkafka.Message) *kafka.Message {
+func TransformMessage(msg *kitkafka.Message) *kafka.Message {
 	headers := make([]kafka.Header, len(msg.Headers))
 	for i, h := range msg.Headers {
-		headers[i] = *transformHeader(h)
+		headers[i] = transformHeader(h)
 	}
 
 	return &kafka.Message{
@@ -25,8 +25,8 @@ func TransformMessage(msg kitkafka.Message) *kafka.Message {
 	}
 }
 
-func transformHeader(header kitkafka.Header) *kafka.Header {
-	return &kafka.Header{
+func transformHeader(header kitkafka.Header) kafka.Header {
+	return kafka.Header{
 		Key:   string(header.Key),
 		Value: header.Value,
 	}
