@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"sort"
 	"sync"
 
 	"github.com/go-kit/kit/log"
@@ -46,6 +47,10 @@ func (s *StorageService) List(_ context.Context) ([]domain.Event, error) {
 	for _, e := range s.events {
 		out = append(out, e)
 	}
+
+	sort.Slice(out, func(i, j int) bool {
+		return out[i].CreatedAt.Before(out[j].CreatedAt)
+	})
 
 	// mark all viewed events as expired
 	for k := range s.events {
