@@ -70,17 +70,17 @@ func ConsumerFinalizer(f ...ConsumerFinalizerFunc) ConsumerOption {
 	}
 }
 
-func (c Consumer) Handle(ctx context.Context, msg kafka.Message) (err error) {
+func (c Consumer) Handle(ctx context.Context, msg *kafka.Message) (err error) {
 	if len(c.finalizer) > 0 {
 		defer func() {
 			for _, f := range c.finalizer {
-				f(ctx, &msg, err)
+				f(ctx, msg, err)
 			}
 		}()
 	}
 
 	for _, f := range c.before {
-		ctx = f(ctx, &msg)
+		ctx = f(ctx, msg)
 	}
 
 	request, err := c.dec(ctx, msg)

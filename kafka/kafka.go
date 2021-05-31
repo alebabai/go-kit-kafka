@@ -21,5 +21,5 @@ type Header struct {
 }
 
 type Handler interface {
-	Handle(ctx context.Context, msg Message) error
+	Handle(ctx context.Context, msg *Message) error
 }

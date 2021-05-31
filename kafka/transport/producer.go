@@ -79,15 +79,15 @@ func (p Producer) Endpoint() endpoint.Endpoint {
 			}()
 		}
 
-		msg := kafka.Message{
+		msg := &kafka.Message{
 			Topic: p.topic,
 		}
-		if err := p.enc(ctx, &msg, request); err != nil {
+		if err := p.enc(ctx, msg, request); err != nil {
 			return nil, err
 		}
 
 		for _, f := range p.before {
-			ctx = f(ctx, &msg)
+			ctx = f(ctx, msg)
 		}
 
 		if err := p.handler.Handle(ctx, msg); err != nil {
