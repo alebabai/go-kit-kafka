@@ -87,7 +87,7 @@ func (l *Listener) Listen(ctx context.Context) error {
 				continue
 			}
 
-			if err := l.handler.Handle(ctx, *TransformMessage(*msg)); err != nil {
+			if err := l.handler.Handle(ctx, TransformMessage(msg)); err != nil {
 				err = fmt.Errorf("failed to handle kafka message: %w", err)
 				l.errorHandler.Handle(ctx, err)
 				continue

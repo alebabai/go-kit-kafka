@@ -19,7 +19,7 @@ func NewProducer(producer sarama.SyncProducer) *Producer {
 	}
 }
 
-func (p *Producer) Handle(ctx context.Context, msg kafka.Message) error {
+func (p *Producer) Handle(ctx context.Context, msg *kafka.Message) error {
 	select {
 	case <-ctx.Done():
 		return fmt.Errorf("failed to produce message: %w", ctx.Err())
