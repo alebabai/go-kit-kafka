@@ -8,8 +8,8 @@ import (
 	"github.com/opentracing/opentracing-go/ext"
 
 	"github.com/go-kit/kit/endpoint"
-	"github.com/go-kit/kit/log"
 	kitopentracing "github.com/go-kit/kit/tracing/opentracing"
+	"github.com/go-kit/log"
 
 	"github.com/alebabai/go-kit-kafka/kafka"
 	"github.com/alebabai/go-kit-kafka/kafka/transport"
