@@ -10,8 +10,8 @@ import (
 
 	ckafka "github.com/confluentinc/confluent-kafka-go/kafka"
 
-	"github.com/go-kit/kit/log"
-	"github.com/go-kit/kit/log/level"
+	"github.com/go-kit/log"
+	"github.com/go-kit/log/level"
 
 	kafkatransport "github.com/alebabai/go-kit-kafka/kafka/transport"
 
@@ -98,11 +98,11 @@ func main() {
 		}()
 
 		// use a router in case if there are many topics
-		router := kafkatransport.NewRouter()
+		router := make(kafkatransport.Router)
 		router.AddHandler(domain.Topic, kafkaHandler)
 
 		topics := make([]string, 0)
-		for topic := range router.Handlers() {
+		for topic := range router {
 			topics = append(topics, topic)
 		}
 
