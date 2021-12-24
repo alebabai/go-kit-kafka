@@ -6,7 +6,7 @@ import (
 	"sort"
 	"sync"
 
-	"github.com/go-kit/kit/log"
+	"github.com/go-kit/log"
 
 	"github.com/alebabai/go-kit-kafka/examples/common/domain"
 )

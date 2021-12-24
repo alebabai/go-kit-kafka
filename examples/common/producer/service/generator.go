@@ -4,9 +4,8 @@ import (
 	"context"
 	"time"
 
+	"github.com/go-kit/log"
 	"github.com/google/uuid"
-
-	"github.com/go-kit/kit/log"
 
 	"github.com/alebabai/go-kit-kafka/examples/common/domain"
 )
@@ -21,7 +20,7 @@ func NewGeneratorService(logger log.Logger) (*Generator, error) {
 	}, nil
 }
 
-func (t *Generator) Generate(ctx context.Context) (*domain.Event, error) {
+func (t *Generator) Generate(_ context.Context) (*domain.Event, error) {
 	_ = t.logger.Log("msg", "generating an event")
 
 	return &domain.Event{
