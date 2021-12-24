@@ -5,8 +5,8 @@ import (
 	"errors"
 	"github.com/Shopify/sarama"
 
-	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/transport"
+	"github.com/go-kit/log"
 )
 
 type Listener struct {
