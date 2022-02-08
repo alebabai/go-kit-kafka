@@ -1,6 +1,6 @@
-GO							?= @go
+GO					?= @go
 
-PACKAGES					?= ./...
+PACKAGES				?= ./...
 TEST_PACKAGES				?= $(PACKAGES)
 COVER_PACKAGES				?= $(shell echo $(TEST_PACKAGES) | tr " " ",")
 COVER_PROFILE				?= coverage.out
