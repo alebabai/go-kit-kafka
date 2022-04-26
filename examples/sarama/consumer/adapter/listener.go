@@ -3,10 +3,9 @@ package adapter
 import (
 	"context"
 	"errors"
-	"github.com/Shopify/sarama"
 
+	"github.com/Shopify/sarama"
 	"github.com/go-kit/kit/transport"
-	"github.com/go-kit/log"
 )
 
 type Listener struct {
@@ -54,12 +53,6 @@ func NewListener(
 }
 
 type ListenerOption func(*Listener)
-
-func ListenerErrorLogger(logger log.Logger) ListenerOption {
-	return func(l *Listener) {
-		l.errorHandler = transport.NewLogErrorHandler(logger)
-	}
-}
 
 func ListenerErrorHandler(errHandler transport.ErrorHandler) ListenerOption {
 	return func(l *Listener) {

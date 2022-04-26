@@ -9,16 +9,12 @@ import (
 	"syscall"
 
 	"github.com/Shopify/sarama"
-
+	kafkatransport "github.com/alebabai/go-kit-kafka/kafka/transport"
+	"github.com/go-kit/kit/transport"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 
-	kafkatransport "github.com/alebabai/go-kit-kafka/kafka/transport"
-
 	"github.com/alebabai/go-kit-kafka/examples/common/consumer"
-	"github.com/alebabai/go-kit-kafka/examples/common/consumer/endpoint"
-	"github.com/alebabai/go-kit-kafka/examples/common/consumer/service"
-	"github.com/alebabai/go-kit-kafka/examples/common/consumer/transport"
 	"github.com/alebabai/go-kit-kafka/examples/common/domain"
 
 	"github.com/alebabai/go-kit-kafka/examples/sarama/consumer/adapter"
@@ -52,26 +48,28 @@ func main() {
 
 	var svc consumer.Service
 	{
-		storageSvc, err := service.NewStorageService(
-			log.With(logger, "component", "storage_service"),
+		var err error
+		svc, err = consumer.NewStorageService(
+			log.With(logger, "component", "storage-service"),
 		)
 		if err != nil {
 			fatal(logger, fmt.Errorf("failed to init storage: %w", err))
 		}
-		svc = storageSvc
 	}
 
-	var endpoints endpoint.Endpoints
+	_ = logger.Log("msg", "initializing endpoints")
+
+	var endpoints consumer.Endpoints
 	{
-		endpoints = endpoint.Endpoints{
-			CreateEventEndpoint: endpoint.MakeCreateEventEndpoint(svc),
-			ListEventsEndpoint:  endpoint.MakeListEventsEndpoint(svc),
+		endpoints = consumer.Endpoints{
+			CreateEventEndpoint: consumer.MakeCreateEventEndpoint(svc),
+			ListEventsEndpoint:  consumer.MakeListEventsEndpoint(svc),
 		}
 	}
 
 	_ = logger.Log("msg", "initializing kafka handlers")
 
-	kafkaHandler := transport.NewKafkaHandler(endpoints)
+	kafkaHandler := consumer.NewKafkaHandler(endpoints.CreateEventEndpoint)
 
 	_ = logger.Log("msg", "initializing kafka consumer")
 
@@ -119,15 +117,38 @@ func main() {
 			fatal(logger, fmt.Errorf("failed to init kafka consumer group handler: %w", err))
 		}
 
-		kafkaListener, err = adapter.NewListener(topics, consumerGroup, consumerGroupHandler)
+		kafkaListener, err = adapter.NewListener(
+			topics,
+			consumerGroup,
+			consumerGroupHandler,
+			adapter.ListenerErrorHandler(
+				transport.NewLogErrorHandler(
+					level.Error(
+						log.With(logger, "component", "listener"),
+					),
+				),
+			),
+		)
 		if err != nil {
 			fatal(logger, fmt.Errorf("failed to init kafka listener: %w", err))
 		}
 	}
 
-	_ = logger.Log("msg", "initializing http handler")
+	_ = logger.Log("msg", "initializing http server")
 
-	httpHandler := transport.NewHTTPHandler(endpoints)
+	var httpServer *http.Server
+	{
+		httpServer = &http.Server{
+			Addr:    ":8080",
+			Handler: consumer.NewHTTPHandler(endpoints),
+		}
+
+		defer func() {
+			if err := httpServer.Shutdown(ctx); err != nil {
+				fatal(logger, fmt.Errorf("failed to shutdown http server: %w", err))
+			}
+		}()
+	}
 
 	errc := make(chan error, 1)
 
@@ -138,7 +159,7 @@ func main() {
 	}()
 
 	go func() {
-		if err := http.ListenAndServe(":8081", httpHandler); err != nil {
+		if err := httpServer.ListenAndServe(); err != nil {
 			errc <- err
 		}
 	}()

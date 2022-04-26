@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/Shopify/sarama"
-
 	"github.com/alebabai/go-kit-kafka/kafka"
 )
 
