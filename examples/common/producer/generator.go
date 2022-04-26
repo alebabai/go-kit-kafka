@@ -1,4 +1,4 @@
-package service
+package producer
 
 import (
 	"context"
@@ -10,18 +10,18 @@ import (
 	"github.com/alebabai/go-kit-kafka/examples/common/domain"
 )
 
-type Generator struct {
+type GeneratorService struct {
 	logger log.Logger
 }
 
-func NewGeneratorService(logger log.Logger) (*Generator, error) {
-	return &Generator{
+func NewGeneratorService(logger log.Logger) (*GeneratorService, error) {
+	return &GeneratorService{
 		logger: logger,
 	}, nil
 }
 
-func (t *Generator) Generate(_ context.Context) (*domain.Event, error) {
-	_ = t.logger.Log("msg", "generating an event")
+func (svc *GeneratorService) Generate(_ context.Context) (*domain.Event, error) {
+	_ = svc.logger.Log("msg", "generating an event")
 
 	return &domain.Event{
 		ID:        uuid.New().String(),

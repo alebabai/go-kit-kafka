@@ -1,4 +1,4 @@
-package endpoint
+package producer
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"github.com/go-kit/kit/endpoint"
 )
 
-func ProducerMiddleware(producerEndpoint endpoint.Endpoint) endpoint.Middleware {
+func Middleware(producer endpoint.Endpoint) endpoint.Middleware {
 	return func(next endpoint.Endpoint) endpoint.Endpoint {
 		return func(ctx context.Context, request interface{}) (interface{}, error) {
 			response, err := next(ctx, request)
@@ -19,7 +19,7 @@ func ProducerMiddleware(producerEndpoint endpoint.Endpoint) endpoint.Middleware 
 				req := ProduceEventRequest{
 					Payload: resp.Result,
 				}
-				if _, err = producerEndpoint(ctx, req); err != nil {
+				if _, err = producer(ctx, req); err != nil {
 					return nil, fmt.Errorf("failed to execute producer endpoint: %w", err)
 				}
 			}

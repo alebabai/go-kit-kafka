@@ -1,4 +1,4 @@
-package service
+package consumer
 
 import (
 	"context"
@@ -26,25 +26,25 @@ func NewStorageService(logger log.Logger) (*StorageService, error) {
 	}, nil
 }
 
-func (s *StorageService) Create(_ context.Context, e domain.Event) error {
-	_ = s.logger.Log("msg", "saving an event", "event_id", e.ID)
+func (svc *StorageService) Create(_ context.Context, e domain.Event) error {
+	_ = svc.logger.Log("msg", "saving an event", "event_id", e.ID)
 
-	if _, ok := s.events[e.ID]; ok {
+	if _, ok := svc.events[e.ID]; ok {
 		return fmt.Errorf("event with id=%v already exists", e.ID)
 	}
 
-	s.m.Lock()
-	s.events[e.ID] = e
-	s.m.Unlock()
+	svc.m.Lock()
+	svc.events[e.ID] = e
+	svc.m.Unlock()
 
 	return nil
 }
 
-func (s *StorageService) List(_ context.Context) ([]domain.Event, error) {
-	s.m.Lock()
+func (svc *StorageService) List(_ context.Context) ([]domain.Event, error) {
+	svc.m.Lock()
 
 	out := make([]domain.Event, 0)
-	for _, e := range s.events {
+	for _, e := range svc.events {
 		out = append(out, e)
 	}
 
@@ -53,13 +53,13 @@ func (s *StorageService) List(_ context.Context) ([]domain.Event, error) {
 	})
 
 	// mark all viewed events as expired
-	for k := range s.events {
-		e := s.events[k]
+	for k := range svc.events {
+		e := svc.events[k]
 		e.Expired = true
-		s.events[k] = e
+		svc.events[k] = e
 	}
 
-	s.m.Unlock()
+	svc.m.Unlock()
 
 	return out, nil
 }

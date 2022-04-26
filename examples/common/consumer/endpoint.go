@@ -1,12 +1,10 @@
-package endpoint
+package consumer
 
 import (
 	"context"
 	"fmt"
 
 	"github.com/go-kit/kit/endpoint"
-
-	"github.com/alebabai/go-kit-kafka/examples/common/consumer"
 )
 
 type Endpoints struct {
@@ -14,7 +12,7 @@ type Endpoints struct {
 	ListEventsEndpoint  endpoint.Endpoint
 }
 
-func MakeCreateEventEndpoint(svc consumer.Service) endpoint.Endpoint {
+func MakeCreateEventEndpoint(svc Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(CreateEventRequest)
 
@@ -26,7 +24,7 @@ func MakeCreateEventEndpoint(svc consumer.Service) endpoint.Endpoint {
 	}
 }
 
-func MakeListEventsEndpoint(svc consumer.Service) endpoint.Endpoint {
+func MakeListEventsEndpoint(svc Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		_ = request.(ListEventsRequest)
 

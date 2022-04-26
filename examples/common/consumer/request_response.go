@@ -1,4 +1,4 @@
-package endpoint
+package consumer
 
 import (
 	"github.com/alebabai/go-kit-kafka/examples/common/domain"

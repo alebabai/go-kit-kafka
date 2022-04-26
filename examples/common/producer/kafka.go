@@ -1,13 +1,11 @@
-package transport
+package producer
 
 import (
 	"context"
-	"github.com/alebabai/go-kit-kafka/kafka/tracing"
 
 	"github.com/alebabai/go-kit-kafka/kafka"
+	"github.com/alebabai/go-kit-kafka/kafka/tracing"
 	"github.com/alebabai/go-kit-kafka/kafka/transport"
-
-	"github.com/alebabai/go-kit-kafka/examples/common/producer/endpoint"
 )
 
 func NewKafkaProducer(handler kafka.Handler, topic string) *transport.Producer {
@@ -20,6 +18,6 @@ func NewKafkaProducer(handler kafka.Handler, topic string) *transport.Producer {
 }
 
 func encodeProduceEventRequest(ctx context.Context, msg *kafka.Message, request interface{}) error {
-	req := request.(endpoint.ProduceEventRequest)
+	req := request.(ProduceEventRequest)
 	return transport.EncodeJSONRequest(ctx, msg, req.Payload)
 }

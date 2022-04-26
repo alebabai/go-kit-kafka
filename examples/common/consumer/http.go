@@ -1,4 +1,4 @@
-package transport
+package consumer
 
 import (
 	"context"
@@ -7,11 +7,9 @@ import (
 	"github.com/gorilla/mux"
 
 	httptransport "github.com/go-kit/kit/transport/http"
-
-	"github.com/alebabai/go-kit-kafka/examples/common/consumer/endpoint"
 )
 
-func NewHTTPHandler(endpoints endpoint.Endpoints) http.Handler {
+func NewHTTPHandler(endpoints Endpoints) http.Handler {
 	r := mux.
 		NewRouter().
 		StrictSlash(true)
@@ -29,11 +27,11 @@ func NewHTTPHandler(endpoints endpoint.Endpoints) http.Handler {
 }
 
 func decodeListEventsRequest(_ context.Context, _ *http.Request) (interface{}, error) {
-	return endpoint.ListEventsRequest{}, nil
+	return ListEventsRequest{}, nil
 }
 
 func encodeListEventsResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
-	res := response.(endpoint.ListEventsResponse)
+	res := response.(ListEventsResponse)
 	httptransport.SetContentType("application/json")(ctx, w)
 	if err := httptransport.EncodeJSONResponse(ctx, w, res.Results); err != nil {
 		return err

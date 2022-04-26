@@ -1,4 +1,4 @@
-package transport
+package consumer
 
 import (
 	"context"
@@ -7,14 +7,14 @@ import (
 
 	"github.com/alebabai/go-kit-kafka/kafka"
 	"github.com/alebabai/go-kit-kafka/kafka/transport"
+	"github.com/go-kit/kit/endpoint"
 
-	"github.com/alebabai/go-kit-kafka/examples/common/consumer/endpoint"
 	"github.com/alebabai/go-kit-kafka/examples/common/domain"
 )
 
-func NewKafkaHandler(e endpoint.Endpoints) kafka.Handler {
+func NewKafkaHandler(e endpoint.Endpoint) kafka.Handler {
 	return transport.NewConsumer(
-		e.CreateEventEndpoint,
+		e,
 		decodeCreateEventRequest,
 	)
 }
@@ -25,7 +25,7 @@ func decodeCreateEventRequest(_ context.Context, msg *kafka.Message) (interface{
 		return nil, fmt.Errorf("failed to unmarshal create event request")
 	}
 
-	return endpoint.CreateEventRequest{
+	return CreateEventRequest{
 		Payload: &e,
 	}, nil
 }
