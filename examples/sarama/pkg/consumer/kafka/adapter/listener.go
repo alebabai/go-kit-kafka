@@ -30,6 +30,7 @@ func NewListener(
 	if consumerGroup == nil {
 		return nil, errors.New("consumer group cannot be nil")
 	}
+
 	if consumerGroupHandler == nil {
 		return nil, errors.New("consumer group handler cannot be nil")
 	}

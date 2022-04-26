@@ -17,7 +17,7 @@ import (
 	"github.com/alebabai/go-kit-kafka/examples/common/domain"
 	"github.com/alebabai/go-kit-kafka/examples/common/producer"
 
-	"github.com/alebabai/go-kit-kafka/examples/confluent/producer/pkg/kafka/adapter"
+	"github.com/alebabai/go-kit-kafka/examples/confluent/pkg/producer/kafka/adapter"
 )
 
 func fatal(logger log.Logger, err error) {
@@ -95,13 +95,10 @@ func main() {
 		}
 	}
 
-	_ = logger.Log("msg", "initializing http handler")
+	_ = logger.Log("msg", "initializing http server")
 
 	var httpServer *http.Server
 	{
-		e := producer.MakeGenerateEventEndpoint(svc)
-		e = producerMiddleware(e)
-
 		httpServer = &http.Server{
 			Addr:    ":8080",
 			Handler: producer.NewHTTPHandler(endpoints),

@@ -3,21 +3,21 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/go-kit/kit/transport"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 
+	"github.com/Shopify/sarama"
 	kafkatransport "github.com/alebabai/go-kit-kafka/kafka/transport"
-	"github.com/confluentinc/confluent-kafka-go/kafka"
+	"github.com/go-kit/kit/transport"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 
 	"github.com/alebabai/go-kit-kafka/examples/common/consumer"
 	"github.com/alebabai/go-kit-kafka/examples/common/domain"
 
-	"github.com/alebabai/go-kit-kafka/examples/confluent/consumer/adapter"
+	"github.com/alebabai/go-kit-kafka/examples/sarama/pkg/consumer/kafka/adapter"
 )
 
 func fatal(logger log.Logger, err error) {
@@ -75,23 +75,31 @@ func main() {
 
 	var kafkaListener *adapter.Listener
 	{
+		cfg := sarama.NewConfig()
+		cfg.Consumer.Offsets.Initial = sarama.OffsetOldest
+		cfg.Consumer.Offsets.AutoCommit.Enable = true
+
 		brokerAddr := domain.BrokerAddr
 		if v, ok := os.LookupEnv("BROKER_ADDR"); ok {
 			brokerAddr = v
 		}
 
-		c, err := kafka.NewConsumer(&kafka.ConfigMap{
-			"bootstrap.servers":  brokerAddr,
-			"group.id":           domain.GroupID,
-			"enable.auto.commit": true,
-		})
+		client, err := sarama.NewClient(
+			[]string{brokerAddr},
+			cfg,
+		)
 		if err != nil {
-			fatal(logger, fmt.Errorf("failed to init kafka consumer: %w", err))
+			fatal(logger, fmt.Errorf("failed to init kafka client: %w", err))
+		}
+
+		consumerGroup, err := sarama.NewConsumerGroupFromClient(domain.GroupID, client)
+		if err != nil {
+			fatal(logger, fmt.Errorf("failed to init kafka consumer group: %w", err))
 		}
 
 		defer func() {
-			if err := c.Close(); err != nil {
-				fatal(logger, fmt.Errorf("failed to close kafka consumer: %w", err))
+			if err := consumerGroup.Close(); err != nil {
+				fatal(logger, fmt.Errorf("failed to close kafka consumer group: %w", err))
 			}
 		}()
 
@@ -104,13 +112,15 @@ func main() {
 			topics = append(topics, topic)
 		}
 
-		if err := c.SubscribeTopics(topics, nil); err != nil {
-			fatal(logger, fmt.Errorf("failed to subscribe to topics: %w", err))
+		consumerGroupHandler, err := adapter.NewConsumerGroupHandler(router)
+		if err != nil {
+			fatal(logger, fmt.Errorf("failed to init kafka consumer group handler: %w", err))
 		}
 
 		kafkaListener, err = adapter.NewListener(
-			c,
-			router,
+			topics,
+			consumerGroup,
+			consumerGroupHandler,
 			adapter.ListenerErrorHandler(
 				transport.NewLogErrorHandler(
 					level.Error(

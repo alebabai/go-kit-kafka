@@ -31,8 +31,9 @@ func decodeGenerateEventRequest(_ context.Context, _ *http.Request) (interface{}
 }
 
 func encodeGenerateEventResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
-	res := response.(GenerateEventResponse)
 	httptransport.SetContentType("application/json")(ctx, w)
+
+	res := response.(GenerateEventResponse)
 	if err := httptransport.EncodeJSONResponse(ctx, w, res.Result); err != nil {
 		return fmt.Errorf("failed to encode json response: %w", err)
 	}

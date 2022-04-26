@@ -19,5 +19,6 @@ func NewKafkaProducer(handler kafka.Handler, topic string) *transport.Producer {
 
 func encodeProduceEventRequest(ctx context.Context, msg *kafka.Message, request interface{}) error {
 	req := request.(ProduceEventRequest)
+
 	return transport.EncodeJSONRequest(ctx, msg, req.Payload)
 }

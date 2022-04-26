@@ -6,10 +6,8 @@ import (
 	"fmt"
 
 	"github.com/Shopify/sarama"
-
-	"github.com/go-kit/kit/transport"
-
 	"github.com/alebabai/go-kit-kafka/kafka"
+	"github.com/go-kit/kit/transport"
 )
 
 type ConsumerGroupHandler struct {
@@ -34,6 +32,14 @@ func NewConsumerGroupHandler(handler kafka.Handler, opts ...ConsumerGroupHandler
 	}
 
 	return l, nil
+}
+
+type ConsumerGroupHandlerOption func(*ConsumerGroupHandler)
+
+func ConsumerGroupHandlerErrorHandler(errHandler transport.ErrorHandler) ConsumerGroupHandlerOption {
+	return func(l *ConsumerGroupHandler) {
+		l.errorHandler = errHandler
+	}
 }
 
 func (h *ConsumerGroupHandler) Setup(_ sarama.ConsumerGroupSession) error {

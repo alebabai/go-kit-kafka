@@ -4,9 +4,8 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/gorilla/mux"
-
 	httptransport "github.com/go-kit/kit/transport/http"
+	"github.com/gorilla/mux"
 )
 
 func NewHTTPHandler(endpoints Endpoints) http.Handler {
@@ -31,10 +30,12 @@ func decodeListEventsRequest(_ context.Context, _ *http.Request) (interface{}, e
 }
 
 func encodeListEventsResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
-	res := response.(ListEventsResponse)
 	httptransport.SetContentType("application/json")(ctx, w)
+
+	res := response.(ListEventsResponse)
 	if err := httptransport.EncodeJSONResponse(ctx, w, res.Results); err != nil {
 		return err
 	}
+
 	return nil
 }
