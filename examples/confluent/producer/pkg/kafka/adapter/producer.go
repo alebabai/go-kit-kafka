@@ -4,9 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/confluentinc/confluent-kafka-go/kafka"
-
 	kitkafka "github.com/alebabai/go-kit-kafka/kafka"
+	"github.com/confluentinc/confluent-kafka-go/kafka"
 )
 
 type producer interface {

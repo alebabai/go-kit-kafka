@@ -7,12 +7,9 @@ import (
 	"io"
 	"time"
 
-	"github.com/confluentinc/confluent-kafka-go/kafka"
-
-	"github.com/go-kit/kit/transport"
-	"github.com/go-kit/log"
-
 	kitkafka "github.com/alebabai/go-kit-kafka/kafka"
+	"github.com/confluentinc/confluent-kafka-go/kafka"
+	"github.com/go-kit/kit/transport"
 )
 
 type consumer interface {
@@ -55,12 +52,6 @@ func NewListener(consumer consumer, handler kitkafka.Handler, opts ...ListenerOp
 }
 
 type ListenerOption func(*Listener)
-
-func ListenerErrorLogger(logger log.Logger) ListenerOption {
-	return func(l *Listener) {
-		l.errorHandler = transport.NewLogErrorHandler(logger)
-	}
-}
 
 func ListenerErrorHandler(errHandler transport.ErrorHandler) ListenerOption {
 	return func(l *Listener) {

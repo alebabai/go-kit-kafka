@@ -1,9 +1,8 @@
 package adapter
 
 import (
-	"github.com/confluentinc/confluent-kafka-go/kafka"
-
 	kitkafka "github.com/alebabai/go-kit-kafka/kafka"
+	"github.com/confluentinc/confluent-kafka-go/kafka"
 )
 
 func TransformMessage(msg *kafka.Message) *kitkafka.Message {

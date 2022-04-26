@@ -3,22 +3,18 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/go-kit/kit/transport"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 
-	ckafka "github.com/confluentinc/confluent-kafka-go/kafka"
-
+	kafkatransport "github.com/alebabai/go-kit-kafka/kafka/transport"
+	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 
-	kafkatransport "github.com/alebabai/go-kit-kafka/kafka/transport"
-
 	"github.com/alebabai/go-kit-kafka/examples/common/consumer"
-	"github.com/alebabai/go-kit-kafka/examples/common/consumer/endpoint"
-	"github.com/alebabai/go-kit-kafka/examples/common/consumer/service"
-	"github.com/alebabai/go-kit-kafka/examples/common/consumer/transport"
 	"github.com/alebabai/go-kit-kafka/examples/common/domain"
 
 	"github.com/alebabai/go-kit-kafka/examples/confluent/consumer/adapter"
@@ -52,26 +48,28 @@ func main() {
 
 	var svc consumer.Service
 	{
-		storageSvc, err := service.NewStorageService(
-			log.With(logger, "component", "storage_service"),
+		var err error
+		svc, err = consumer.NewStorageService(
+			log.With(logger, "component", "storage-service"),
 		)
 		if err != nil {
 			fatal(logger, fmt.Errorf("failed to init storage: %w", err))
 		}
-		svc = storageSvc
 	}
 
-	var endpoints endpoint.Endpoints
+	_ = logger.Log("msg", "initializing endpoints")
+
+	var endpoints consumer.Endpoints
 	{
-		endpoints = endpoint.Endpoints{
-			CreateEventEndpoint: endpoint.MakeCreateEventEndpoint(svc),
-			ListEventsEndpoint:  endpoint.MakeListEventsEndpoint(svc),
+		endpoints = consumer.Endpoints{
+			CreateEventEndpoint: consumer.MakeCreateEventEndpoint(svc),
+			ListEventsEndpoint:  consumer.MakeListEventsEndpoint(svc),
 		}
 	}
 
 	_ = logger.Log("msg", "initializing kafka handlers")
 
-	kafkaHandler := transport.NewKafkaHandler(endpoints)
+	kafkaHandler := consumer.NewKafkaHandler(endpoints.CreateEventEndpoint)
 
 	_ = logger.Log("msg", "initializing kafka consumer")
 
@@ -82,7 +80,7 @@ func main() {
 			brokerAddr = v
 		}
 
-		c, err := ckafka.NewConsumer(&ckafka.ConfigMap{
+		c, err := kafka.NewConsumer(&kafka.ConfigMap{
 			"bootstrap.servers":  brokerAddr,
 			"group.id":           domain.GroupID,
 			"enable.auto.commit": true,
@@ -113,8 +111,12 @@ func main() {
 		kafkaListener, err = adapter.NewListener(
 			c,
 			router,
-			adapter.ListenerErrorLogger(
-				log.With(logger, "component", "listener"),
+			adapter.ListenerErrorHandler(
+				transport.NewLogErrorHandler(
+					level.Error(
+						log.With(logger, "component", "listener"),
+					),
+				),
 			),
 		)
 		if err != nil {
@@ -122,9 +124,21 @@ func main() {
 		}
 	}
 
-	_ = logger.Log("msg", "initializing http handler")
+	_ = logger.Log("msg", "initializing http server")
 
-	httpHandler := transport.NewHTTPHandler(endpoints)
+	var httpServer *http.Server
+	{
+		httpServer = &http.Server{
+			Addr:    ":8080",
+			Handler: consumer.NewHTTPHandler(endpoints),
+		}
+
+		defer func() {
+			if err := httpServer.Shutdown(ctx); err != nil {
+				fatal(logger, fmt.Errorf("failed to shutdown http server: %w", err))
+			}
+		}()
+	}
 
 	errc := make(chan error, 1)
 
@@ -135,7 +149,7 @@ func main() {
 	}()
 
 	go func() {
-		if err := http.ListenAndServe(":8081", httpHandler); err != nil {
+		if err := httpServer.ListenAndServe(); err != nil {
 			errc <- err
 		}
 	}()
