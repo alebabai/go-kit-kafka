@@ -18,18 +18,18 @@ func NewHTTPHandler(endpoints Endpoints) http.Handler {
 		Methods("GET").
 		Handler(httptransport.NewServer(
 			endpoints.ListEventsEndpoint,
-			decodeListEventsRequest,
-			encodeListEventsResponse,
+			decodeListEventsHTTPRequest,
+			encodeListEventsHTTPResponse,
 		))
 
 	return r
 }
 
-func decodeListEventsRequest(_ context.Context, _ *http.Request) (interface{}, error) {
+func decodeListEventsHTTPRequest(_ context.Context, _ *http.Request) (interface{}, error) {
 	return ListEventsRequest{}, nil
 }
 
-func encodeListEventsResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
+func encodeListEventsHTTPResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
 	httptransport.SetContentType("application/json")(ctx, w)
 
 	res := response.(ListEventsResponse)

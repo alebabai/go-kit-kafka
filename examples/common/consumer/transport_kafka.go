@@ -15,11 +15,11 @@ import (
 func NewKafkaHandler(e endpoint.Endpoint) kafka.Handler {
 	return transport.NewConsumer(
 		e,
-		decodeCreateEventRequest,
+		decodeCreateEventKafkaRequest,
 	)
 }
 
-func decodeCreateEventRequest(_ context.Context, msg *kafka.Message) (interface{}, error) {
+func decodeCreateEventKafkaRequest(_ context.Context, msg *kafka.Message) (interface{}, error) {
 	var e domain.Event
 	if err := json.Unmarshal(msg.Value, &e); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal create event request")

@@ -12,12 +12,12 @@ func NewKafkaProducer(handler kafka.Handler, topic string) *transport.Producer {
 	return transport.NewProducer(
 		handler,
 		topic,
-		encodeProduceEventRequest,
+		encodeProduceEventKafkaRequest,
 		transport.ProducerBefore(tracing.MessageToContext),
 	)
 }
 
-func encodeProduceEventRequest(ctx context.Context, msg *kafka.Message, request interface{}) error {
+func encodeProduceEventKafkaRequest(ctx context.Context, msg *kafka.Message, request interface{}) error {
 	req := request.(ProduceEventRequest)
 
 	return transport.EncodeJSONRequest(ctx, msg, req.Payload)

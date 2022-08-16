@@ -19,18 +19,18 @@ func NewHTTPHandler(endpoints Endpoints) http.Handler {
 		Methods("POST").
 		Handler(httptransport.NewServer(
 			endpoints.GenerateEvent,
-			decodeGenerateEventRequest,
-			encodeGenerateEventResponse,
+			decodeGenerateEventHTTPRequest,
+			encodeGenerateEventHTTPResponse,
 		))
 
 	return router
 }
 
-func decodeGenerateEventRequest(_ context.Context, _ *http.Request) (interface{}, error) {
+func decodeGenerateEventHTTPRequest(_ context.Context, _ *http.Request) (interface{}, error) {
 	return GenerateEventRequest{}, nil
 }
 
-func encodeGenerateEventResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
+func encodeGenerateEventHTTPResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
 	httptransport.SetContentType("application/json")(ctx, w)
 
 	res := response.(GenerateEventResponse)
