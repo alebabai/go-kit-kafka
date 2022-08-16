@@ -21,6 +21,9 @@ type Producer struct {
 	finalizer []ProducerFinalizerFunc
 }
 
+// ProducerOption sets an optional parameter for producer
+type ProducerOption func(producer *Producer)
+
 // successResponse represents successful empty response placeholder
 type successResponse struct{}
 
@@ -44,9 +47,6 @@ func NewProducer(
 
 	return p
 }
-
-// ProducerOption sets an optional parameter for producers.
-type ProducerOption func(producer *Producer)
 
 // ProducerResponse sets the successful response value
 func ProducerResponse(response interface{}) ProducerOption {
