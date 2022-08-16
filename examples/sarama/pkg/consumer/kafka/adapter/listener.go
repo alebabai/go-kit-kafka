@@ -17,6 +17,8 @@ type Listener struct {
 	errorHandler transport.ErrorHandler
 }
 
+type ListenerOption func(*Listener)
+
 func NewListener(
 	topics []string,
 	consumerGroup sarama.ConsumerGroup,
@@ -52,8 +54,6 @@ func NewListener(
 
 	return l, nil
 }
-
-type ListenerOption func(*Listener)
 
 func ListenerErrorHandler(errHandler transport.ErrorHandler) ListenerOption {
 	return func(l *Listener) {

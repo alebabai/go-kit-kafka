@@ -26,6 +26,8 @@ type Listener struct {
 	errorHandler transport.ErrorHandler
 }
 
+type ListenerOption func(*Listener)
+
 func NewListener(consumer consumer, handler kitkafka.Handler, opts ...ListenerOption) (*Listener, error) {
 	if consumer == nil {
 		return nil, errors.New("consumer cannot be nil")
@@ -50,8 +52,6 @@ func NewListener(consumer consumer, handler kitkafka.Handler, opts ...ListenerOp
 
 	return l, nil
 }
-
-type ListenerOption func(*Listener)
 
 func ListenerErrorHandler(errHandler transport.ErrorHandler) ListenerOption {
 	return func(l *Listener) {

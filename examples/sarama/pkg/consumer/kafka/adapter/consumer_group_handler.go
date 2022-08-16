@@ -15,6 +15,8 @@ type ConsumerGroupHandler struct {
 	errorHandler transport.ErrorHandler
 }
 
+type ConsumerGroupHandlerOption func(*ConsumerGroupHandler)
+
 func NewConsumerGroupHandler(handler kafka.Handler, opts ...ConsumerGroupHandlerOption) (*ConsumerGroupHandler, error) {
 	if handler == nil {
 		return nil, errors.New("handler cannot be nil")
@@ -33,8 +35,6 @@ func NewConsumerGroupHandler(handler kafka.Handler, opts ...ConsumerGroupHandler
 
 	return l, nil
 }
-
-type ConsumerGroupHandlerOption func(*ConsumerGroupHandler)
 
 func ConsumerGroupHandlerErrorHandler(errHandler transport.ErrorHandler) ConsumerGroupHandlerOption {
 	return func(l *ConsumerGroupHandler) {
