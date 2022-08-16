@@ -47,7 +47,9 @@ func main() {
 		logger = log.With(logger, "ts", log.DefaultTimestampUTC)
 	}
 
-	_ = logger.Log("msg", "initializing services")
+	_ = logger.Log("msg", "initialization of the application")
+
+	_ = logger.Log("msg", "initialize services")
 
 	var svc producer.Service
 	{
@@ -58,7 +60,7 @@ func main() {
 		}
 	}
 
-	_ = logger.Log("msg", "initializing kafka producer")
+	_ = logger.Log("msg", "initialize kafka producer")
 
 	var producerMiddleware kitendpoint.Middleware
 	{
@@ -99,7 +101,7 @@ func main() {
 		producerMiddleware = producer.Middleware(e)
 	}
 
-	_ = logger.Log("msg", "initializing endpoints")
+	_ = logger.Log("msg", "initialize endpoints")
 
 	var endpoints producer.Endpoints
 	{
@@ -110,7 +112,7 @@ func main() {
 		}
 	}
 
-	_ = logger.Log("msg", "initializing http server")
+	_ = logger.Log("msg", "initialize http server")
 
 	var httpServer *http.Server
 	{

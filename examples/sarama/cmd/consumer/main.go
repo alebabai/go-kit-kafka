@@ -43,8 +43,9 @@ func main() {
 		logger = level.NewInjector(logger, level.InfoValue())
 		logger = log.With(logger, "ts", log.DefaultTimestampUTC)
 	}
+	_ = logger.Log("msg", "initialization of the application")
 
-	_ = logger.Log("msg", "initializing services")
+	_ = logger.Log("msg", "initialize services")
 
 	var svc consumer.Service
 	{
@@ -57,7 +58,7 @@ func main() {
 		}
 	}
 
-	_ = logger.Log("msg", "initializing endpoints")
+	_ = logger.Log("msg", "initialize endpoints")
 
 	var endpoints consumer.Endpoints
 	{
@@ -67,11 +68,11 @@ func main() {
 		}
 	}
 
-	_ = logger.Log("msg", "initializing kafka handlers")
+	_ = logger.Log("msg", "initialize kafka handlers")
 
 	kafkaHandler := consumer.NewKafkaHandler(endpoints.CreateEventEndpoint)
 
-	_ = logger.Log("msg", "initializing kafka consumer")
+	_ = logger.Log("msg", "initialize kafka consumer")
 
 	var kafkaListener *adapter.Listener
 	{
@@ -134,7 +135,7 @@ func main() {
 		}
 	}
 
-	_ = logger.Log("msg", "initializing http server")
+	_ = logger.Log("msg", "initialize http server")
 
 	var httpServer *http.Server
 	{
