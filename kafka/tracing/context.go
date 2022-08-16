@@ -23,7 +23,7 @@ func MessageToContext(ctx context.Context, msg *kafka.Message) context.Context {
 	return ctx
 }
 
-// ContextToTags returns new map of tags from `ctx``
+// ContextToTags returns new map of tags from `ctx`
 func ContextToTags(ctx context.Context) map[string]interface{} {
 	tags := make(map[string]interface{})
 

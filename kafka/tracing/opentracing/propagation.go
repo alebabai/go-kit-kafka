@@ -17,18 +17,17 @@ import (
 //
 // Example usage for consumer side:
 //
-//     carrier := KafkaHeadersCarrier(msg.Headers)
-//     clientContext, err := tracer.Extract(opentracing.TextMap, carrier)
+//	carrier := KafkaHeadersCarrier(msg.Headers)
+//	clientContext, err := tracer.Extract(opentracing.TextMap, carrier)
 //
 // Example usage for producer side:
 //
-//     carrier := KafkaHeadersCarrier(msg.Headers)
-//     err := tracer.Inject(
-//         span.Context(),
-//         opentracing.TextMap,
-//         carrier,
-//     )
-//
+//	carrier := KafkaHeadersCarrier(msg.Headers)
+//	err := tracer.Inject(
+//	    span.Context(),
+//	    opentracing.TextMap,
+//	    carrier,
+//	)
 type KafkaHeadersCarrier []kafka.Header
 
 // Set conforms to the opentracing.TextMapWriter interface.
