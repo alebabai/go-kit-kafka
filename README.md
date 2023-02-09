@@ -2,7 +2,7 @@
 
 > Apache Kafka integration module for go-kit
 
-[![build](https://img.shields.io/github/workflow/status/alebabai/go-kit-kafka/CI)](https://github.com/alebabai/go-kit-kafka/actions?query=workflow%3ACI)
+[![build](https://img.shields.io/github/actions/workflow/status/alebabai/go-kit-kafka/ci.yml)](https://github.com/alebabai/go-kit-kafka/actions?query=workflow%3ACI)
 [![version](https://img.shields.io/github/go-mod/go-version/alebabai/go-kit-kafka)](https://go.dev/)
 [![report](https://goreportcard.com/badge/github.com/alebabai/go-kit-kafka)](https://goreportcard.com/report/github.com/alebabai/go-kit-kafka)
 [![coverage](https://img.shields.io/codecov/c/github/alebabai/go-kit-kafka)](https://codecov.io/github/alebabai/go-kit-kafka)
