@@ -6,19 +6,19 @@ import (
 	"github.com/alebabai/go-kit-kafka/kafka"
 )
 
-type kafkaContextKey string
+type KafkaContextKey string
 
 const (
-	keyTopic     kafkaContextKey = "kafka.topic"
-	keyPartition kafkaContextKey = "kafka.partition"
-	keyOffset    kafkaContextKey = "kafka.offset"
+	KeyTopic     KafkaContextKey = "kafka.topic"
+	KeyPartition KafkaContextKey = "kafka.partition"
+	KeyOffset    KafkaContextKey = "kafka.offset"
 )
 
 // MessageToContext returns new context with topic, partition and offset values from msg.
 func MessageToContext(ctx context.Context, msg *kafka.Message) context.Context {
-	ctx = context.WithValue(ctx, keyTopic, msg.Topic)
-	ctx = context.WithValue(ctx, keyPartition, msg.Partition)
-	ctx = context.WithValue(ctx, keyOffset, msg.Offset)
+	ctx = context.WithValue(ctx, KeyTopic, msg.Topic)
+	ctx = context.WithValue(ctx, KeyPartition, msg.Partition)
+	ctx = context.WithValue(ctx, KeyOffset, msg.Offset)
 
 	return ctx
 }
@@ -27,16 +27,16 @@ func MessageToContext(ctx context.Context, msg *kafka.Message) context.Context {
 func ContextToTags(ctx context.Context) map[string]interface{} {
 	tags := make(map[string]interface{})
 
-	if topic := ctx.Value(keyTopic); topic != nil {
-		tags[string(keyTopic)] = topic
+	if topic := ctx.Value(KeyTopic); topic != nil {
+		tags[string(KeyTopic)] = topic
 	}
 
-	if partition := ctx.Value(keyPartition); partition != nil {
-		tags[string(keyPartition)] = partition
+	if partition := ctx.Value(KeyPartition); partition != nil {
+		tags[string(KeyPartition)] = partition
 	}
 
-	if offset := ctx.Value(keyOffset); offset != nil {
-		tags[string(keyOffset)] = offset
+	if offset := ctx.Value(KeyOffset); offset != nil {
+		tags[string(KeyOffset)] = offset
 	}
 
 	return tags

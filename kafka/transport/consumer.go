@@ -19,9 +19,6 @@ type Consumer struct {
 	errorHandler transport.ErrorHandler
 }
 
-// ConsumerOption sets an optional parameter for a [Consumer].
-type ConsumerOption func(consumer *Consumer)
-
 // NewConsumer constructs a new consumer, which implements kafka.Handler and wraps the provided endpoint.
 func NewConsumer(
 	e endpoint.Endpoint,
@@ -41,6 +38,9 @@ func NewConsumer(
 
 	return c
 }
+
+// ConsumerOption sets an optional parameter for a [Consumer].
+type ConsumerOption func(consumer *Consumer)
 
 // ConsumerBefore functions are executed on the consumer message object
 // before the request is decoded.
