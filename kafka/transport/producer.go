@@ -21,14 +21,13 @@ type Producer struct {
 	finalizer []ProducerFinalizerFunc
 }
 
-// ProducerOption sets an optional parameter for producer
+// ProducerOption sets an optional parameter for a [Producer].
 type ProducerOption func(producer *Producer)
 
-// successResponse represents successful empty response placeholder
+// successResponse is successful empty response placeholder.
 type successResponse struct{}
 
-// NewProducer constructs a new producer for a single Kafka topic,
-// which implements endpoint.Endpoint.
+// NewProducer constructs a new producer for a single Kafka topic.
 func NewProducer(
 	handler kafka.Handler,
 	topic string,
@@ -48,7 +47,7 @@ func NewProducer(
 	return p
 }
 
-// ProducerResponse sets the successful response value
+// ProducerResponse sets the successful response value for a [Producer].
 func ProducerResponse(response interface{}) ProducerOption {
 	return func(p *Producer) {
 		p.response = response

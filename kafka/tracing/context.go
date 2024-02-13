@@ -14,7 +14,7 @@ const (
 	keyOffset    kafkaContextKey = "kafka.offset"
 )
 
-// MessageToContext returns new context with topic, partition and offset values from `msg`.
+// MessageToContext returns new context with topic, partition and offset values from msg.
 func MessageToContext(ctx context.Context, msg *kafka.Message) context.Context {
 	ctx = context.WithValue(ctx, keyTopic, msg.Topic)
 	ctx = context.WithValue(ctx, keyPartition, msg.Partition)
@@ -23,7 +23,7 @@ func MessageToContext(ctx context.Context, msg *kafka.Message) context.Context {
 	return ctx
 }
 
-// ContextToTags returns new map of tags from `ctx`
+// ContextToTags returns new map of tags from ctx.
 func ContextToTags(ctx context.Context) map[string]interface{} {
 	tags := make(map[string]interface{})
 
