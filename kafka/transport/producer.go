@@ -21,14 +21,7 @@ type Producer struct {
 	finalizer []ProducerFinalizerFunc
 }
 
-// ProducerOption sets an optional parameter for producer
-type ProducerOption func(producer *Producer)
-
-// successResponse represents successful empty response placeholder
-type successResponse struct{}
-
-// NewProducer constructs a new producer for a single Kafka topic,
-// which implements endpoint.Endpoint.
+// NewProducer constructs a new producer for a single Kafka topic.
 func NewProducer(
 	handler kafka.Handler,
 	topic string,
@@ -38,7 +31,7 @@ func NewProducer(
 	p := &Producer{
 		handler:  handler,
 		topic:    topic,
-		response: successResponse{},
+		response: struct{}{},
 		enc:      enc,
 	}
 	for _, opt := range options {
@@ -48,7 +41,10 @@ func NewProducer(
 	return p
 }
 
-// ProducerResponse sets the successful response value
+// ProducerOption sets an optional parameter for a [Producer].
+type ProducerOption func(producer *Producer)
+
+// ProducerResponse sets the successful response value for a [Producer].
 func ProducerResponse(response interface{}) ProducerOption {
 	return func(p *Producer) {
 		p.response = response
@@ -122,7 +118,7 @@ func (p Producer) Endpoint() endpoint.Endpoint {
 // after response is returned. The principal intended use is for error logging.
 type ProducerFinalizerFunc func(ctx context.Context, err error)
 
-// EncodeJSONRequest is an EncodeRequestFunc that serializes the request as a
+// EncodeJSONRequest is an [EncodeRequestFunc] that serializes the request as a
 // JSON object to the Message value.
 // Many services can use it as a sensible default.
 func EncodeJSONRequest(_ context.Context, msg *kafka.Message, request interface{}) error {

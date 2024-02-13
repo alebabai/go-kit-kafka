@@ -1,5 +1,5 @@
 // Package tracing provides helpers and bindings
-// for distributed tracing of kafka consumers and producers.
+// for distributed tracing of Apache Kafka consumers and producers.
 //
 // As your infrastructure grows, it becomes important to be able to trace a
 // request, as it travels through multiple services and back to the user.

@@ -20,10 +20,10 @@
 
 ### Docker
 
-Bootstrap full project using docker-compose:
+Bootstrap full project using docker compose:
 
 ```bash
-docker-compose -f <example>/docker-compose.yml up
+docker compose -f <example>/compose.yml up
 ```
 
 To produce an event send the following request:

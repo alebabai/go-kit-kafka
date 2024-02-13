@@ -13,7 +13,7 @@ import (
 	"github.com/alebabai/go-kit-kafka/kafka/transport"
 )
 
-// KafkaHeadersCarrier satisfies both opentracing.TextMapWriter and opentracing.TextMapReader.
+// KafkaHeadersCarrier satisfies both [opentracing.TextMapWriter] and [opentracing.TextMapReader].
 //
 // Example usage for consumer side:
 //
@@ -47,7 +47,7 @@ func (c *KafkaHeadersCarrier) Set(key, val string) {
 	})
 }
 
-// ForeachKey conforms to the opentracing.TextMapReader interface.
+// ForeachKey conforms to the [opentracing.TextMapReader] interface.
 func (c KafkaHeadersCarrier) ForeachKey(handler func(key string, val string) error) error {
 	for _, h := range c {
 		if err := handler(string(h.Key), string(h.Value)); err != nil {
@@ -58,8 +58,8 @@ func (c KafkaHeadersCarrier) ForeachKey(handler func(key string, val string) err
 	return nil
 }
 
-// ContextToKafka returns an transport.RequestFunc that injects an OpenTracing Span
-// found in `ctx` into the kafka headers. If no such Span can be found, the
+// ContextToKafka returns an [transport.RequestFunc] that injects an [opentracing.Span]
+// found in ctx into the kafka headers. If no such Span can be found, the
 // transport.RequestFunc is a noop.
 func ContextToKafka(tracer opentracing.Tracer, logger log.Logger) transport.RequestFunc {
 	return func(ctx context.Context, msg *kafka.Message) context.Context {
@@ -78,9 +78,9 @@ func ContextToKafka(tracer opentracing.Tracer, logger log.Logger) transport.Requ
 	}
 }
 
-// KafkaToContext returns an transport.RequestFunc that tries to join with an
-// OpenTracing trace found in `msg` and starts a new Span called
-// `operationName` accordingly. If no trace could be found in `msg`, the Span
+// KafkaToContext returns an [transport.RequestFunc] that tries to join with an
+// OpenTracing trace found in msg and starts a new Span called
+// operationName accordingly. If no trace could be found in msg, the Span
 // will be a trace root. The Span is incorporated in the returned Context and
 // can be retrieved with opentracing.SpanFromContext(ctx).
 func KafkaToContext(tracer opentracing.Tracer, operationName string, logger log.Logger) transport.RequestFunc {

@@ -1,4 +1,4 @@
-version: '3'
+version: '3.7'
 
 services:
   zookeeper:
@@ -34,10 +34,9 @@ services:
     environment:
       BROKER_ADDR: kafka:9092
     volumes:
-      - .:/app
-      - $GOPATH/pkg/mod:/go/pkg/mod
+      - ../..:/app
     working_dir: /app
-    command: sh -c "go mod download && go run ./cmd/producer"
+    command: sh -c "cd ./_examples/sarama && go mod download && go run ./cmd/producer"
     ports:
       - 8080:8080
 
@@ -49,9 +48,8 @@ services:
     environment:
       BROKER_ADDR: kafka:9092
     volumes:
-      - .:/app
-      - $GOPATH/pkg/mod:/go/pkg/mod
+      - ../..:/app
     working_dir: /app
-    command: sh -c "go mod download && go run ./cmd/consumer"
+    command: sh -c "cd ./_examples/sarama && go mod download && go run ./cmd/consumer"
     ports:
       - 8081:8081

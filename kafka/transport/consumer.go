@@ -9,7 +9,7 @@ import (
 	"github.com/alebabai/go-kit-kafka/kafka"
 )
 
-// Consumer wraps an endpoint and implements kafka.Handler.
+// Consumer wraps an endpoint and implements [kafka.Handler].
 type Consumer struct {
 	e            endpoint.Endpoint
 	dec          DecodeRequestFunc
@@ -19,11 +19,7 @@ type Consumer struct {
 	errorHandler transport.ErrorHandler
 }
 
-// ConsumerOption sets an optional parameter for consumer
-type ConsumerOption func(consumer *Consumer)
-
-// NewConsumer constructs a new consumer, which implements kafka.Handler and wraps
-// the provided endpoint.
+// NewConsumer constructs a new consumer, which implements kafka.Handler and wraps the provided endpoint.
 func NewConsumer(
 	e endpoint.Endpoint,
 	dec DecodeRequestFunc,
@@ -42,6 +38,9 @@ func NewConsumer(
 
 	return c
 }
+
+// ConsumerOption sets an optional parameter for a [Consumer].
+type ConsumerOption func(consumer *Consumer)
 
 // ConsumerBefore functions are executed on the consumer message object
 // before the request is decoded.
@@ -75,7 +74,7 @@ func ConsumerFinalizer(f ...ConsumerFinalizerFunc) ConsumerOption {
 	}
 }
 
-// Handle implements kafka.Handler.
+// Handle implements [kafka.Handler].
 func (c Consumer) Handle(ctx context.Context, msg *kafka.Message) (err error) {
 	if len(c.finalizer) > 0 {
 		defer func() {

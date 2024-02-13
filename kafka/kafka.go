@@ -5,7 +5,12 @@ import (
 	"time"
 )
 
-// Message represents a Kafka message
+// Handler is an interface for processing Kafka messages.
+type Handler interface {
+	Handle(ctx context.Context, msg *Message) error
+}
+
+// Message is a Kafka message object.
 type Message struct {
 	Topic     string
 	Partition int32
@@ -16,13 +21,8 @@ type Message struct {
 	Timestamp time.Time
 }
 
-// Header represents a Kafka header
+// Header is a Kafka message object.
 type Header struct {
 	Key   []byte
 	Value []byte
-}
-
-// Handler represents a Kafka message handler
-type Handler interface {
-	Handle(ctx context.Context, msg *Message) error
 }

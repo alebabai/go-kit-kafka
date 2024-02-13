@@ -1,7 +1,7 @@
-GO					?= @go
+GO							?= @go
 
-PACKAGES				?= ./...
-TEST_PACKAGES				?= $(PACKAGES)
+PACKAGES					?= ./...
+TEST_PACKAGES				?= ./...
 COVER_PACKAGES				?= $(shell echo $(TEST_PACKAGES) | tr " " ",")
 COVER_PROFILE				?= coverage.out
 
@@ -14,12 +14,12 @@ all: build test
 fmt:
 	$(GO) fmt $(PACKAGES)
 
-.PHONY: mod/download
-mod/download:
-	$(GO) mod download
+.PHONY: mod/tidy
+mod/tidy:
+	$(GO) mod tidy
 
 .PHONY: prepare
-prepare: mod/download fmt
+prepare: mod/tidy fmt
 
 .PHONY: build
 build: prepare

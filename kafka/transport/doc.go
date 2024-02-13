@@ -1,2 +1,2 @@
-// Package transport provides a Kafka transport.
+// Package transport provides a Kafka transport abstraction.
 package transport
