@@ -27,7 +27,7 @@ services:
       - 9094:9094
 
   producer:
-    image: library/golang:1.16-alpine
+    image: library/golang:1.16
     restart: on-failure
     depends_on:
       - kafka
@@ -36,12 +36,12 @@ services:
     volumes:
       - ../..:/app
     working_dir: /app
-    command: sh -c "cd ./_examples/sarama && go mod download && go run ./cmd/producer"
+    command: sh -c "cd ./examples/confluent && go mod download && go run ./cmd/producer"
     ports:
       - 8080:8080
 
   consumer:
-    image: library/golang:1.16-alpine
+    image: library/golang:1.16
     restart: on-failure
     depends_on:
       - kafka
@@ -50,6 +50,6 @@ services:
     volumes:
       - ../..:/app
     working_dir: /app
-    command: sh -c "cd ./_examples/sarama && go mod download && go run ./cmd/consumer"
+    command: sh -c "cd ./examples/confluent && go mod download && go run ./cmd/consumer"
     ports:
       - 8081:8081
