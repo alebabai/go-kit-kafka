@@ -9,14 +9,13 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Shopify/sarama"
+	"github.com/IBM/sarama"
 	kitendpoint "github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 
 	"github.com/alebabai/go-kit-kafka/v2/examples/common/domain"
 	"github.com/alebabai/go-kit-kafka/v2/examples/common/producer"
-
 	"github.com/alebabai/go-kit-kafka/v2/examples/sarama/pkg/producer/kafka/adapter"
 )
 

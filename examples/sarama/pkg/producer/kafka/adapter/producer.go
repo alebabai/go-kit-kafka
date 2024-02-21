@@ -4,8 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/Shopify/sarama"
+	"github.com/IBM/sarama"
 	"github.com/alebabai/go-kafka"
+	adapter "github.com/alebabai/go-kafka/adapter/sarama"
 )
 
 type Producer struct {
@@ -18,12 +19,13 @@ func NewProducer(producer sarama.SyncProducer) *Producer {
 	}
 }
 
-func (p *Producer) Handle(ctx context.Context, msg *kafka.Message) error {
+func (p *Producer) Handle(ctx context.Context, msg kafka.Message) error {
 	select {
 	case <-ctx.Done():
 		return fmt.Errorf("failed to produce message: %w", ctx.Err())
 	default:
-		if _, _, err := p.producer.SendMessage(TransformMessage(msg)); err != nil {
+		pmsg := adapter.ConvertKafkaMessageToProducerMessage(msg)
+		if _, _, err := p.producer.SendMessage(&pmsg); err != nil {
 			return err
 		}
 
