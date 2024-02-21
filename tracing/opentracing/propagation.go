@@ -5,10 +5,11 @@ import (
 	"fmt"
 
 	"github.com/alebabai/go-kafka"
-	"github.com/alebabai/go-kit-kafka/v2/transport"
 	"github.com/go-kit/log"
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/ext"
+
+	"github.com/alebabai/go-kit-kafka/v2/transport"
 )
 
 // KafkaHeadersCarrier satisfies both [opentracing.TextMapWriter] and [opentracing.TextMapReader].

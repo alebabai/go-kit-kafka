@@ -27,7 +27,7 @@ func NewConsumer(
 	c := &Consumer{
 		e:   e,
 		dec: dec,
-		errorHandler: transport.ErrorHandlerFunc(func(ctx context.Context, err error) {
+		errorHandler: transport.ErrorHandlerFunc(func(context.Context, error) {
 			// noop
 		}),
 	}
