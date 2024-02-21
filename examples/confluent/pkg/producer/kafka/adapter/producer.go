@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	kitkafka "github.com/alebabai/go-kafka"
-	"github.com/confluentinc/confluent-kafka-go/kafka"
+	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 )
 
 type producer interface {

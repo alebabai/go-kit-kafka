@@ -9,7 +9,7 @@ import (
 	"syscall"
 
 	kafkatransport "github.com/alebabai/go-kit-kafka/v2/transport"
-	"github.com/confluentinc/confluent-kafka-go/kafka"
+	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	"github.com/go-kit/kit/transport"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
