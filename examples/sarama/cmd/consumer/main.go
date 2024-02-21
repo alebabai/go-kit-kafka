@@ -9,15 +9,15 @@ import (
 	"syscall"
 
 	"github.com/Shopify/sarama"
-	kafkatransport "github.com/alebabai/go-kit-kafka/kafka/transport"
+	kafkatransport "github.com/alebabai/go-kit-kafka/v2/transport"
 	"github.com/go-kit/kit/transport"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 
-	"github.com/alebabai/go-kit-kafka/examples/common/consumer"
-	"github.com/alebabai/go-kit-kafka/examples/common/domain"
+	"github.com/alebabai/go-kit-kafka/v2/examples/common/consumer"
+	"github.com/alebabai/go-kit-kafka/v2/examples/common/domain"
 
-	"github.com/alebabai/go-kit-kafka/examples/sarama/pkg/consumer/kafka/adapter"
+	"github.com/alebabai/go-kit-kafka/v2/examples/sarama/pkg/consumer/kafka/adapter"
 )
 
 func fatal(logger log.Logger, err error) {

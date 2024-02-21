@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	kitkafka "github.com/alebabai/go-kit-kafka/kafka"
+	kitkafka "github.com/alebabai/go-kafka"
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 )
 

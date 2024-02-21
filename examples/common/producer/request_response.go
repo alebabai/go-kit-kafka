@@ -1,7 +1,7 @@
 package producer
 
 import (
-	"github.com/alebabai/go-kit-kafka/examples/common/domain"
+	"github.com/alebabai/go-kit-kafka/v2/examples/common/domain"
 )
 
 type GenerateEventRequest struct {

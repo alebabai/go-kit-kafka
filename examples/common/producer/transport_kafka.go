@@ -3,9 +3,9 @@ package producer
 import (
 	"context"
 
-	"github.com/alebabai/go-kit-kafka/kafka"
-	"github.com/alebabai/go-kit-kafka/kafka/tracing"
-	"github.com/alebabai/go-kit-kafka/kafka/transport"
+	"github.com/alebabai/go-kafka"
+	"github.com/alebabai/go-kit-kafka/v2/tracing"
+	"github.com/alebabai/go-kit-kafka/v2/transport"
 )
 
 func NewKafkaProducer(handler kafka.Handler, topic string) *transport.Producer {

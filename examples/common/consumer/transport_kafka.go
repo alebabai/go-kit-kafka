@@ -5,11 +5,11 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/alebabai/go-kit-kafka/kafka"
-	"github.com/alebabai/go-kit-kafka/kafka/transport"
+	"github.com/alebabai/go-kafka"
+	"github.com/alebabai/go-kit-kafka/v2/transport"
 	"github.com/go-kit/kit/endpoint"
 
-	"github.com/alebabai/go-kit-kafka/examples/common/domain"
+	"github.com/alebabai/go-kit-kafka/v2/examples/common/domain"
 )
 
 func NewKafkaHandler(e endpoint.Endpoint) kafka.Handler {

@@ -2,7 +2,7 @@ package adapter
 
 import (
 	"github.com/Shopify/sarama"
-	"github.com/alebabai/go-kit-kafka/kafka"
+	"github.com/alebabai/go-kafka"
 )
 
 func TransformMessage(msg *kafka.Message) *sarama.ProducerMessage {

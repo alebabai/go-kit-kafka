@@ -4,9 +4,8 @@ import (
 	"context"
 	"encoding/json"
 
+	"github.com/alebabai/go-kafka"
 	"github.com/go-kit/kit/endpoint"
-
-	"github.com/alebabai/go-kit-kafka/kafka"
 )
 
 // Producer wraps single Kafka topic for message producing
@@ -102,7 +101,7 @@ func (p Producer) Endpoint() endpoint.Endpoint {
 			ctx = f(ctx, msg)
 		}
 
-		if err := p.handler.Handle(ctx, msg); err != nil {
+		if err := p.handler.Handle(ctx, *msg); err != nil {
 			return nil, err
 		}
 
