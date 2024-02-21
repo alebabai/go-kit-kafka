@@ -9,7 +9,7 @@ import (
 )
 
 // Producer wraps single Kafka topic for message producing
-// and implements endpoint.Endpoint.
+// and implements [endpoint.Endpoint].
 type Producer struct {
 	handler   kafka.Handler
 	topic     string
@@ -50,7 +50,7 @@ func ProducerResponse(response interface{}) ProducerOption {
 	}
 }
 
-// ProducerBefore sets the RequestFuncs that are applied to the outgoing producer
+// ProducerBefore sets the [RequestFunc]s that are applied to the outgoing producer
 // request before it's invoked.
 func ProducerBefore(before ...RequestFunc) ProducerOption {
 	return func(p *Producer) {
@@ -58,7 +58,7 @@ func ProducerBefore(before ...RequestFunc) ProducerOption {
 	}
 }
 
-// ProducerAfter adds one or more ProducerResponseFuncs, which are applied to the
+// ProducerAfter adds one or more [ProducerResponseFunc]s, which are applied to the
 // context after successful message producing.
 // This is useful for context-manipulation operations.
 func ProducerAfter(after ...ProducerResponseFunc) ProducerOption {
@@ -67,7 +67,7 @@ func ProducerAfter(after ...ProducerResponseFunc) ProducerOption {
 	}
 }
 
-// ProducerFinalizer adds one or more ProducerFinalizerFuncs to be executed at the
+// ProducerFinalizer adds one or more [ProducerFinalizerFunc]s to be executed at the
 // end of producing Kafka message. Finalizers are executed in the order in which they
 // were added. By default, no finalizer is registered.
 func ProducerFinalizer(f ...ProducerFinalizerFunc) ProducerOption {
@@ -118,7 +118,7 @@ func (p Producer) Endpoint() endpoint.Endpoint {
 type ProducerFinalizerFunc func(ctx context.Context, err error)
 
 // EncodeJSONRequest is an [EncodeRequestFunc] that serializes the request as a
-// JSON object to the Message value.
+// JSON object to the [Message] value.
 // Many services can use it as a sensible default.
 func EncodeJSONRequest(_ context.Context, msg *kafka.Message, request interface{}) error {
 	rawJSON, err := json.Marshal(request)

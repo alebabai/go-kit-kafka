@@ -8,7 +8,7 @@ import (
 	"github.com/go-kit/kit/transport"
 )
 
-// Consumer wraps an endpoint and implements [kafka.Handler].
+// Consumer wraps an [endpoint.Endpoint] and implements [kafka.Handler].
 type Consumer struct {
 	e            endpoint.Endpoint
 	dec          DecodeRequestFunc
@@ -18,7 +18,7 @@ type Consumer struct {
 	errorHandler transport.ErrorHandler
 }
 
-// NewConsumer constructs a new consumer, which implements kafka.Handler and wraps the provided endpoint.
+// NewConsumer constructs a new consumer, which implements [kafka.Handler] and wraps the provided [endpoint.Endpoint].
 func NewConsumer(
 	e endpoint.Endpoint,
 	dec DecodeRequestFunc,
