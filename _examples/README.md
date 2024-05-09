@@ -11,9 +11,9 @@
 
 ### Services
 
-- _producer_ - the service that provide an endpoint to produce an event
+- **producer** - a service that provides an endpoint for generating and producing events to the specified topic in Apache Kafka
 
-- _consumer_ - the service that able to consume events from kafka topic, store them the in inmemory storage and provide
+- **consumer** - the service that able to consume events from kafka topic, store them the in inmemory storage and provide
   an endpoint to list all consumed events
 
 ## Usage
