@@ -26,7 +26,7 @@ func (p *Producer) Handle(ctx context.Context, msg kafka.Message) error {
 	default:
 		pmsg := adapter.ConvertKafkaMessageToProducerMessage(msg)
 		if _, _, err := p.producer.SendMessage(&pmsg); err != nil {
-			return err
+			return fmt.Errorf("failed to produce message: %w", err)
 		}
 
 		return nil
