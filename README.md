@@ -1,6 +1,6 @@
 # go-kit-kafka
 
-> Apache Kafka integration module for go-kit
+> Apache Kafka integration module for go-kit powered by [alebabai/go-kafka](https://github.com/alebabai/go-kafka)
 
 [![build](https://img.shields.io/github/actions/workflow/status/alebabai/go-kit-kafka/ci.yml)](https://github.com/alebabai/go-kit-kafka/actions?query=workflow%3ACI)
 [![version](https://img.shields.io/github/go-mod/go-version/alebabai/go-kit-kafka)](https://go.dev/)
@@ -16,37 +16,21 @@ Go modules are supported.
 Manual install:
 
 ```bash
-go get -u github.com/alebabai/go-kit-kafka
+go get -u github.com/alebabai/go-kit-kafka/v2
 ```
 
 Golang import:
 
 ```go
-import "github.com/alebabai/go-kit-kafka/kafka"
+import "github.com/alebabai/go-kit-kafka/v2"
 ```
 
 ## Usage
 
-To use consumer/producer transport abstractions converters to the following types from the chosen Apache Kafka
-client library should be implemented:
+Just import it into your project and use the provided abstractions to couple your preferred Apache Kafka client library with the well-known [go-kit/kit](https://github.com/go-kit/kit).
 
-```go
-type Message struct {
-    Topic     string
-    Partition int32
-    Offset    int64
-    Key       []byte
-    Value     []byte
-    Headers   []Header
-    Timestamp time.Time
-}
-
-type Header struct {
-    Key   []byte
-    Value []byte
-}
-```
+For detailed information, please refer to the [alebabai/go-kafka](https://github.com/alebabai/go-kafka) repository.
 
 ## Examples
 
-Go to [Examples](examples).
+For additional usage details, please check out the [examples](./examples) folder.
