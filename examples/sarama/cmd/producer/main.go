@@ -16,7 +16,7 @@ import (
 
 	"github.com/alebabai/go-kit-kafka/v2/examples/common"
 	"github.com/alebabai/go-kit-kafka/v2/examples/common/producer"
-	"github.com/alebabai/go-kit-kafka/v2/examples/sarama/pkg/producer/kafka/adapter"
+	"github.com/alebabai/go-kit-kafka/v2/examples/sarama/pkg/kafka/adapter"
 )
 
 func main() {
