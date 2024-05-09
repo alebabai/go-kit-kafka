@@ -14,16 +14,11 @@ import (
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 
-	"github.com/alebabai/go-kit-kafka/v2/examples/common/domain"
+	"github.com/alebabai/go-kit-kafka/v2/examples/common"
 	"github.com/alebabai/go-kit-kafka/v2/examples/common/producer"
 
-	"github.com/alebabai/go-kit-kafka/v2/examples/confluent/pkg/producer/kafka/adapter"
+	"github.com/alebabai/go-kit-kafka/v2/examples/confluent/pkg/kafka/adapter"
 )
-
-func fatal(logger log.Logger, err error) {
-	_ = logger.Log("err", err)
-	os.Exit(1)
-}
 
 func main() {
 	var (
@@ -49,22 +44,17 @@ func main() {
 
 	_ = logger.Log("msg", "initialization of the application")
 
-	_ = logger.Log("msg", "initialize services")
+	_ = logger.Log("msg", "initializing services")
 
-	var svc producer.Service
-	{
-		var err error
-		svc, err = producer.NewGeneratorService(logger)
-		if err != nil {
-			fatal(logger, fmt.Errorf("failed to create generator: %w", err))
-		}
-	}
+	svc := producer.NewService(
+		log.With(logger, "component", "producer-service"),
+	)
 
-	_ = logger.Log("msg", "initialize kafka producer")
+	_ = logger.Log("msg", "initializing kafka producer")
 
 	var producerMiddleware endpoint.Middleware
 	{
-		brokerAddr := domain.BrokerAddr
+		brokerAddr := common.BrokerAddr
 		if v, ok := os.LookupEnv("BROKER_ADDR"); ok {
 			brokerAddr = v
 		}
@@ -80,30 +70,23 @@ func main() {
 
 		e := producer.NewKafkaProducer(
 			adapter.NewProducer(p),
-			domain.Topic,
+			common.KafkaTopic,
 		).Endpoint()
 
 		producerMiddleware = producer.Middleware(e)
 	}
 
-	_ = logger.Log("msg", "initialize endpoints")
-
-	var endpoints producer.Endpoints
-	{
-		endpoints = producer.Endpoints{
-			GenerateEvent: producerMiddleware(
-				producer.MakeGenerateEventEndpoint(svc),
-			),
-		}
-	}
-
-	_ = logger.Log("msg", "initialize http server")
+	_ = logger.Log("msg", "initializing http server")
 
 	var httpServer *http.Server
 	{
 		httpServer = &http.Server{
-			Addr:    ":8080",
-			Handler: producer.NewHTTPHandler(endpoints),
+			Addr: producer.HTTPServerAddr,
+			Handler: producer.NewHTTPHandler(
+				producerMiddleware(
+					producer.MakeGenerateEventEndpoint(svc),
+				),
+			),
 		}
 
 		defer func() {
@@ -129,4 +112,9 @@ func main() {
 
 	_ = logger.Log("msg", "application started")
 	_ = logger.Log("msg", "application stopped", "exit", <-errc)
+}
+
+func fatal(logger log.Logger, err error) {
+	_ = logger.Log("err", err)
+	os.Exit(1)
 }
