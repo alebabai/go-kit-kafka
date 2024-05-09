@@ -1,5 +1,5 @@
-github.com/alebabai/go-kafka v0.3.0 h1:7Zgr7042gebAGWqfIzhTb0URG6ixt9iqFA8A0KIA0Yo=
-github.com/alebabai/go-kafka v0.3.0/go.mod h1:s3tF1Jkubb+rQoIXZJCx1+yZjLSuK/HEAOl2rHs2zyY=
+github.com/alebabai/go-kafka v0.3.2 h1:koxUxpPlN4PmFztJ8ilcOCmVDbZ6780qc/3utcW6xrk=
+github.com/alebabai/go-kafka v0.3.2/go.mod h1:s3tF1Jkubb+rQoIXZJCx1+yZjLSuK/HEAOl2rHs2zyY=
 github.com/go-kit/kit v0.13.0 h1:OoneCcHKHQ03LfBpoQCUfCluwd2Vt3ohz+kvbJneZAU=
 github.com/go-kit/kit v0.13.0/go.mod h1:phqEHMMUbyrCFCTgH48JueqrM3md2HcAZ8N3XE4FKDg=
 github.com/go-kit/log v0.2.1 h1:MRVx0/zhvdseW+Gza6N9rVzU/IVzaeE1SFI4raAhmBU=
