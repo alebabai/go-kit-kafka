@@ -3,7 +3,7 @@ module github.com/alebabai/go-kit-kafka/v2
 go 1.22
 
 require (
-	github.com/alebabai/go-kafka v0.3.0
+	github.com/alebabai/go-kafka v0.3.2
 	github.com/go-kit/kit v0.13.0
 	github.com/go-kit/log v0.2.1
 	github.com/opentracing/opentracing-go v1.2.0

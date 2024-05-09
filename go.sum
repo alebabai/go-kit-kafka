@@ -2,8 +2,8 @@ cloud.google.com/go v0.26.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMT
 cloud.google.com/go v0.34.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMTw=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
-github.com/alebabai/go-kafka v0.3.0 h1:7Zgr7042gebAGWqfIzhTb0URG6ixt9iqFA8A0KIA0Yo=
-github.com/alebabai/go-kafka v0.3.0/go.mod h1:s3tF1Jkubb+rQoIXZJCx1+yZjLSuK/HEAOl2rHs2zyY=
+github.com/alebabai/go-kafka v0.3.2 h1:koxUxpPlN4PmFztJ8ilcOCmVDbZ6780qc/3utcW6xrk=
+github.com/alebabai/go-kafka v0.3.2/go.mod h1:s3tF1Jkubb+rQoIXZJCx1+yZjLSuK/HEAOl2rHs2zyY=
 github.com/antihax/optional v1.0.0/go.mod h1:uupD/76wgC+ih3iEmQUL+0Ugr19nfwCT1kdvxnR2qWY=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
 github.com/cespare/xxhash v1.1.0/go.mod h1:XrSqR1VqqWfGrhpAt58auRo0WTKS1nRRg3ghfAqPWnc=
