@@ -136,6 +136,6 @@ func main() {
 }
 
 func fatal(logger log.Logger, err error) {
-	_ = level.Error(logger).Log("msg", "application stopped by an error", "err", err)
+	_ = level.Error(logger).Log("err", err)
 	os.Exit(1)
 }
