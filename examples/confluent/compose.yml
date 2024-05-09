@@ -28,7 +28,7 @@ services:
 
   consumer:
     image: library/golang:1.22
-    restart: always
+    restart: on-failure
     depends_on:
       - kafka
     environment:
@@ -42,7 +42,7 @@ services:
 
   producer:
     image: library/golang:1.22
-    restart: always
+    restart: on-failure
     depends_on:
       - kafka
     environment:

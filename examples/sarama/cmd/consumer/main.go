@@ -136,17 +136,23 @@ func main() {
 		}
 	}()
 
+	sigc := make(chan os.Signal, 1)
+	
 	go func() {
-		sigc := make(chan os.Signal, 1)
 		signal.Notify(sigc, syscall.SIGINT, syscall.SIGTERM)
-		errc <- fmt.Errorf("%s", <-sigc)
 	}()
 
 	_ = logger.Log("msg", "application started")
-	_ = logger.Log("msg", "application stopped", "exit", <-errc)
+
+	select {
+	case sig := <-sigc:
+		_ = logger.Log("msg", "application stopped", "exit", sig)
+	case err := <-errc:
+		fatal(logger, err)
+	}
 }
 
 func fatal(logger log.Logger, err error) {
-	_ = level.Error(logger).Log("err", err)
+	_ = level.Error(logger).Log("msg", "application stopped by an error", "err", err)
 	os.Exit(1)
 }
