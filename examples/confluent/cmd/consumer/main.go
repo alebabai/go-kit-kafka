@@ -8,22 +8,15 @@ import (
 	"os/signal"
 	"syscall"
 
-	kafkatransport "github.com/alebabai/go-kit-kafka/kafka/transport"
-	"github.com/confluentinc/confluent-kafka-go/kafka"
-	"github.com/go-kit/kit/transport"
+	"github.com/alebabai/go-kafka"
+	adapter "github.com/alebabai/go-kafka/adapter/confluent"
+	ckafka "github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 
-	"github.com/alebabai/go-kit-kafka/examples/common/consumer"
-	"github.com/alebabai/go-kit-kafka/examples/common/domain"
-
-	"github.com/alebabai/go-kit-kafka/examples/confluent/pkg/consumer/kafka/adapter"
+	"github.com/alebabai/go-kit-kafka/v2/examples/common"
+	"github.com/alebabai/go-kit-kafka/v2/examples/common/consumer"
 )
-
-func fatal(logger log.Logger, err error) {
-	_ = level.Error(logger).Log("err", err)
-	os.Exit(1)
-}
 
 func main() {
 	var (
@@ -46,45 +39,24 @@ func main() {
 
 	_ = logger.Log("msg", "initialization of the application")
 
-	_ = logger.Log("msg", "initialize services")
+	_ = logger.Log("msg", "initializing services")
 
-	var svc consumer.Service
-	{
-		var err error
-		svc, err = consumer.NewStorageService(
-			log.With(logger, "component", "storage-service"),
-		)
-		if err != nil {
-			fatal(logger, fmt.Errorf("failed to init storage: %w", err))
-		}
-	}
-
-	_ = logger.Log("msg", "initialize endpoints")
-
-	var endpoints consumer.Endpoints
-	{
-		endpoints = consumer.Endpoints{
-			CreateEventEndpoint: consumer.MakeCreateEventEndpoint(svc),
-			ListEventsEndpoint:  consumer.MakeListEventsEndpoint(svc),
-		}
-	}
-
-	_ = logger.Log("msg", "initialize kafka handlers")
-
-	kafkaHandler := consumer.NewKafkaHandler(endpoints.CreateEventEndpoint)
+	svc := consumer.NewService(
+		log.With(logger, "component", "consumer-service"),
+	)
 
 	_ = logger.Log("msg", "initialize kafka consumer")
 
-	var kafkaListener *adapter.Listener
+	var consumerListener *adapter.ConsumerListener
 	{
-		brokerAddr := domain.BrokerAddr
+		brokerAddr := common.BrokerAddr
 		if v, ok := os.LookupEnv("BROKER_ADDR"); ok {
 			brokerAddr = v
 		}
 
-		c, err := kafka.NewConsumer(&kafka.ConfigMap{
+		c, err := ckafka.NewConsumer(&ckafka.ConfigMap{
 			"bootstrap.servers":  brokerAddr,
-			"group.id":           domain.GroupID,
+			"group.id":           consumer.KafkaGroupID,
 			"enable.auto.commit": true,
 		})
 		if err != nil {
@@ -98,28 +70,18 @@ func main() {
 		}()
 
 		// use a router in case if there are many topics
-		router := make(kafkatransport.Router)
-		router.AddHandler(domain.Topic, kafkaHandler)
-
-		topics := make([]string, 0)
-		for topic := range router {
-			topics = append(topics, topic)
+		router := kafka.StaticRouterByTopic{
+			common.KafkaTopic: consumer.NewKafkaHandler(
+				consumer.MakeCreateEventEndpoint(svc),
+			),
 		}
-
-		if err := c.SubscribeTopics(topics, nil); err != nil {
+		if err := c.SubscribeTopics([]string{common.KafkaTopic}, nil); err != nil {
 			fatal(logger, fmt.Errorf("failed to subscribe to topics: %w", err))
 		}
 
-		kafkaListener, err = adapter.NewListener(
+		consumerListener, err = adapter.NewConsumerListener(
 			c,
 			router,
-			adapter.ListenerErrorHandler(
-				transport.NewLogErrorHandler(
-					level.Error(
-						log.With(logger, "component", "listener"),
-					),
-				),
-			),
 		)
 		if err != nil {
 			fatal(logger, fmt.Errorf("failed to init kafka listener: %w", err))
@@ -131,8 +93,8 @@ func main() {
 	var httpServer *http.Server
 	{
 		httpServer = &http.Server{
-			Addr:    ":8081",
-			Handler: consumer.NewHTTPHandler(endpoints),
+			Addr:    consumer.HTTPServerAddr,
+			Handler: consumer.NewHTTPHandler(consumer.MakeListEventsEndpoint(svc)),
 		}
 
 		defer func() {
@@ -145,7 +107,7 @@ func main() {
 	errc := make(chan error, 1)
 
 	go func() {
-		if err := kafkaListener.Listen(ctx); err != nil {
+		if err := consumerListener.Listen(ctx, -1); err != nil {
 			errc <- err
 		}
 	}()
@@ -156,12 +118,24 @@ func main() {
 		}
 	}()
 
+	sigc := make(chan os.Signal, 1)
+
 	go func() {
 		sigc := make(chan os.Signal, 1)
 		signal.Notify(sigc, syscall.SIGINT, syscall.SIGTERM)
-		errc <- fmt.Errorf("%s", <-sigc)
 	}()
 
 	_ = logger.Log("msg", "application started")
-	_ = logger.Log("msg", "application stopped", "exit", <-errc)
+
+	select {
+	case sig := <-sigc:
+		_ = logger.Log("msg", "application stopped", "exit", sig)
+	case err := <-errc:
+		fatal(logger, err)
+	}
+}
+
+func fatal(logger log.Logger, err error) {
+	_ = level.Error(logger).Log("err", err)
+	os.Exit(1)
 }

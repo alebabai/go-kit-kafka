@@ -3,7 +3,7 @@ package transport
 import (
 	"context"
 
-	"github.com/alebabai/go-kit-kafka/kafka"
+	"github.com/alebabai/go-kafka"
 )
 
 // DecodeRequestFunc extracts a user-domain request object from
@@ -13,7 +13,3 @@ type DecodeRequestFunc func(ctx context.Context, msg *kafka.Message) (request in
 // EncodeRequestFunc encodes the passed request object into
 // an Kafka message object. It is designed to be used in Kafka Producers.
 type EncodeRequestFunc func(context.Context, *kafka.Message, interface{}) error
-
-// EncodeResponseFunc encodes the passed response object into
-// an Kafka message object. It is designed to be used in Kafka Consumers.
-type EncodeResponseFunc func(context.Context, interface{}) error

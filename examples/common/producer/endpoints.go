@@ -15,13 +15,13 @@ func MakeGenerateEventEndpoint(svc Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		_ = request.(GenerateEventRequest)
 
-		t, err := svc.Generate(ctx)
+		res, err := svc.GenerateEvent(ctx)
 		if err != nil {
 			return nil, fmt.Errorf("failed to generate an event: %w", err)
 		}
 
 		return GenerateEventResponse{
-			Result: t,
+			Result: *res,
 		}, nil
 	}
 }

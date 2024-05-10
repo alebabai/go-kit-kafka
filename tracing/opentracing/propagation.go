@@ -4,13 +4,12 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/alebabai/go-kafka"
+	"github.com/go-kit/log"
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/ext"
 
-	"github.com/go-kit/log"
-
-	"github.com/alebabai/go-kit-kafka/kafka"
-	"github.com/alebabai/go-kit-kafka/kafka/transport"
+	"github.com/alebabai/go-kit-kafka/v2/transport"
 )
 
 // KafkaHeadersCarrier satisfies both [opentracing.TextMapWriter] and [opentracing.TextMapReader].
@@ -81,7 +80,7 @@ func ContextToKafka(tracer opentracing.Tracer, logger log.Logger) transport.Requ
 // KafkaToContext returns an [transport.RequestFunc] that tries to join with an
 // OpenTracing trace found in msg and starts a new Span called
 // operationName accordingly. If no trace could be found in msg, the Span
-// will be a trace root. The Span is incorporated in the returned Context and
+// will be a trace root. The Span is incorporated in the returned [context.Context] and
 // can be retrieved with opentracing.SpanFromContext(ctx).
 func KafkaToContext(tracer opentracing.Tracer, operationName string, logger log.Logger) transport.RequestFunc {
 	return func(ctx context.Context, msg *kafka.Message) context.Context {

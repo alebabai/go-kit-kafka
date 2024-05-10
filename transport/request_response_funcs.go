@@ -3,7 +3,7 @@ package transport
 import (
 	"context"
 
-	"github.com/alebabai/go-kit-kafka/kafka"
+	"github.com/alebabai/go-kafka"
 )
 
 // RequestFunc may take information from a Kafka message and put it into a

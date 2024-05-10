@@ -5,25 +5,19 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/go-kit/kit/endpoint"
 	httptransport "github.com/go-kit/kit/transport/http"
-	"github.com/gorilla/mux"
 )
 
-func NewHTTPHandler(endpoints Endpoints) http.Handler {
-	router := mux.
-		NewRouter().
-		StrictSlash(true)
+func NewHTTPHandler(e endpoint.Endpoint) http.Handler {
+	m := http.NewServeMux()
+	m.Handle("/events", httptransport.NewServer(
+		e,
+		decodeGenerateEventHTTPRequest,
+		encodeGenerateEventHTTPResponse,
+	))
 
-	router.
-		Path("/events").
-		Methods("POST").
-		Handler(httptransport.NewServer(
-			endpoints.GenerateEvent,
-			decodeGenerateEventHTTPRequest,
-			encodeGenerateEventHTTPResponse,
-		))
-
-	return router
+	return m
 }
 
 func decodeGenerateEventHTTPRequest(_ context.Context, _ *http.Request) (interface{}, error) {
@@ -33,8 +27,8 @@ func decodeGenerateEventHTTPRequest(_ context.Context, _ *http.Request) (interfa
 func encodeGenerateEventHTTPResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
 	httptransport.SetContentType("application/json")(ctx, w)
 
-	res := response.(GenerateEventResponse)
-	if err := httptransport.EncodeJSONResponse(ctx, w, res.Result); err != nil {
+	resp := response.(GenerateEventResponse)
+	if err := httptransport.EncodeJSONResponse(ctx, w, resp.Result); err != nil {
 		return fmt.Errorf("failed to encode json response: %w", err)
 	}
 

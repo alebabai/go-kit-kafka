@@ -7,23 +7,17 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
-	"github.com/Shopify/sarama"
-	kafkatransport "github.com/alebabai/go-kit-kafka/kafka/transport"
-	"github.com/go-kit/kit/transport"
+	"github.com/IBM/sarama"
+	"github.com/alebabai/go-kafka"
+	adapter "github.com/alebabai/go-kafka/adapter/sarama"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 
-	"github.com/alebabai/go-kit-kafka/examples/common/consumer"
-	"github.com/alebabai/go-kit-kafka/examples/common/domain"
-
-	"github.com/alebabai/go-kit-kafka/examples/sarama/pkg/consumer/kafka/adapter"
+	"github.com/alebabai/go-kit-kafka/v2/examples/common"
+	"github.com/alebabai/go-kit-kafka/v2/examples/common/consumer"
 )
-
-func fatal(logger log.Logger, err error) {
-	_ = level.Error(logger).Log("err", err)
-	os.Exit(1)
-}
 
 func main() {
 	var (
@@ -45,42 +39,22 @@ func main() {
 	}
 	_ = logger.Log("msg", "initialization of the application")
 
-	_ = logger.Log("msg", "initialize services")
+	_ = logger.Log("msg", "initializing services")
 
-	var svc consumer.Service
-	{
-		var err error
-		svc, err = consumer.NewStorageService(
-			log.With(logger, "component", "storage-service"),
-		)
-		if err != nil {
-			fatal(logger, fmt.Errorf("failed to init storage: %w", err))
-		}
-	}
+	svc := consumer.NewService(
+		log.With(logger, "component", "consumer-service"),
+	)
 
-	_ = logger.Log("msg", "initialize endpoints")
+	_ = logger.Log("msg", "initializing kafka consumer group")
 
-	var endpoints consumer.Endpoints
-	{
-		endpoints = consumer.Endpoints{
-			CreateEventEndpoint: consumer.MakeCreateEventEndpoint(svc),
-			ListEventsEndpoint:  consumer.MakeListEventsEndpoint(svc),
-		}
-	}
-
-	_ = logger.Log("msg", "initialize kafka handlers")
-
-	kafkaHandler := consumer.NewKafkaHandler(endpoints.CreateEventEndpoint)
-
-	_ = logger.Log("msg", "initialize kafka consumer")
-
-	var kafkaListener *adapter.Listener
+	var consumerGroupListener *adapter.ConsumerGroupListener
 	{
 		cfg := sarama.NewConfig()
 		cfg.Consumer.Offsets.Initial = sarama.OffsetOldest
 		cfg.Consumer.Offsets.AutoCommit.Enable = true
+		cfg.Consumer.Return.Errors = true
 
-		brokerAddr := domain.BrokerAddr
+		brokerAddr := common.BrokerAddr
 		if v, ok := os.LookupEnv("BROKER_ADDR"); ok {
 			brokerAddr = v
 		}
@@ -93,55 +67,45 @@ func main() {
 			fatal(logger, fmt.Errorf("failed to init kafka client: %w", err))
 		}
 
-		consumerGroup, err := sarama.NewConsumerGroupFromClient(domain.GroupID, client)
+		cg, err := sarama.NewConsumerGroupFromClient(consumer.KafkaGroupID, client)
 		if err != nil {
 			fatal(logger, fmt.Errorf("failed to init kafka consumer group: %w", err))
 		}
 
 		defer func() {
-			if err := consumerGroup.Close(); err != nil {
+			if err := cg.Close(); err != nil {
 				fatal(logger, fmt.Errorf("failed to close kafka consumer group: %w", err))
 			}
 		}()
 
 		// use a router in case if there are many topics
-		router := make(kafkatransport.Router)
-		router.AddHandler(domain.Topic, kafkaHandler)
-
-		topics := make([]string, 0)
-		for topic := range router {
-			topics = append(topics, topic)
+		router := kafka.StaticRouterByTopic{
+			common.KafkaTopic: consumer.NewKafkaHandler(
+				consumer.MakeCreateEventEndpoint(svc),
+			),
 		}
 
-		consumerGroupHandler, err := adapter.NewConsumerGroupHandler(router)
+		cgh, err := adapter.NewConsumerGroupHandler(router)
 		if err != nil {
 			fatal(logger, fmt.Errorf("failed to init kafka consumer group handler: %w", err))
 		}
 
-		kafkaListener, err = adapter.NewListener(
-			topics,
-			consumerGroup,
-			consumerGroupHandler,
-			adapter.ListenerErrorHandler(
-				transport.NewLogErrorHandler(
-					level.Error(
-						log.With(logger, "component", "listener"),
-					),
-				),
-			),
+		consumerGroupListener, err = adapter.NewConsumerGroupListener(
+			cg,
+			cgh,
 		)
 		if err != nil {
 			fatal(logger, fmt.Errorf("failed to init kafka listener: %w", err))
 		}
 	}
 
-	_ = logger.Log("msg", "initialize http server")
+	_ = logger.Log("msg", "initializing http server")
 
 	var httpServer *http.Server
 	{
 		httpServer = &http.Server{
-			Addr:    ":8081",
-			Handler: consumer.NewHTTPHandler(endpoints),
+			Addr:    consumer.HTTPServerAddr,
+			Handler: consumer.NewHTTPHandler(consumer.MakeListEventsEndpoint(svc)),
 		}
 
 		defer func() {
@@ -154,8 +118,15 @@ func main() {
 	errc := make(chan error, 1)
 
 	go func() {
-		if err := kafkaListener.Listen(ctx); err != nil {
+		if err := consumerGroupListener.Listen(ctx, common.KafkaTopic); err != nil {
 			errc <- err
+		}
+	}()
+
+	go func() {
+		for err := range consumerGroupListener.Errors() {
+			time.Sleep(2 * time.Second) // debounce
+			level.Error(logger).Log("err", err)
 		}
 	}()
 
@@ -165,12 +136,23 @@ func main() {
 		}
 	}()
 
+	sigc := make(chan os.Signal, 1)
+
 	go func() {
-		sigc := make(chan os.Signal, 1)
 		signal.Notify(sigc, syscall.SIGINT, syscall.SIGTERM)
-		errc <- fmt.Errorf("%s", <-sigc)
 	}()
 
 	_ = logger.Log("msg", "application started")
-	_ = logger.Log("msg", "application stopped", "exit", <-errc)
+
+	select {
+	case sig := <-sigc:
+		_ = logger.Log("msg", "application stopped", "exit", sig)
+	case err := <-errc:
+		fatal(logger, err)
+	}
+}
+
+func fatal(logger log.Logger, err error) {
+	_ = level.Error(logger).Log("err", err)
+	os.Exit(1)
 }

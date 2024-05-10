@@ -1,4 +1,4 @@
-package domain
+package common
 
 import (
 	"time"
@@ -7,5 +7,5 @@ import (
 type Event struct {
 	ID        string    `json:"id"`
 	CreatedAt time.Time `json:"created_at"`
-	Expired   bool      `json:"expired"`
+	State     string    `json:"state"`
 }

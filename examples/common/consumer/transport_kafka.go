@@ -5,11 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/alebabai/go-kit-kafka/kafka"
-	"github.com/alebabai/go-kit-kafka/kafka/transport"
+	"github.com/alebabai/go-kafka"
+	"github.com/alebabai/go-kit-kafka/v2/examples/common"
+	"github.com/alebabai/go-kit-kafka/v2/transport"
 	"github.com/go-kit/kit/endpoint"
-
-	"github.com/alebabai/go-kit-kafka/examples/common/domain"
 )
 
 func NewKafkaHandler(e endpoint.Endpoint) kafka.Handler {
@@ -20,12 +19,12 @@ func NewKafkaHandler(e endpoint.Endpoint) kafka.Handler {
 }
 
 func decodeCreateEventKafkaRequest(_ context.Context, msg *kafka.Message) (interface{}, error) {
-	var e domain.Event
-	if err := json.Unmarshal(msg.Value, &e); err != nil {
+	var out common.Event
+	if err := json.Unmarshal(msg.Value, &out); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal create event request")
 	}
 
 	return CreateEventRequest{
-		Payload: &e,
+		Payload: out,
 	}, nil
 }

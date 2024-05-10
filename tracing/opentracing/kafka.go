@@ -1,11 +1,10 @@
 package opentracing
 
 import (
-	"github.com/opentracing/opentracing-go"
-	"github.com/opentracing/opentracing-go/ext"
-
 	"github.com/go-kit/kit/endpoint"
 	kitopentracing "github.com/go-kit/kit/tracing/opentracing"
+	"github.com/opentracing/opentracing-go"
+	"github.com/opentracing/opentracing-go/ext"
 )
 
 // TraceConsumer returns a [endpoint.Middleware] that wraps the next [endpoint.Endpoint] in an

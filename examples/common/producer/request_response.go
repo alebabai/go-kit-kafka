@@ -1,18 +1,18 @@
 package producer
 
 import (
-	"github.com/alebabai/go-kit-kafka/examples/common/domain"
+	"github.com/alebabai/go-kit-kafka/v2/examples/common"
 )
 
 type GenerateEventRequest struct {
 }
 
 type GenerateEventResponse struct {
-	Result *domain.Event
+	Result common.Event
 }
 
 type ProduceEventRequest struct {
-	Payload *domain.Event
+	Payload common.Event
 }
 
 type ProduceEventResponse struct {

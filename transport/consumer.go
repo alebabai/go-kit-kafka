@@ -3,13 +3,12 @@ package transport
 import (
 	"context"
 
+	"github.com/alebabai/go-kafka"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/transport"
-
-	"github.com/alebabai/go-kit-kafka/kafka"
 )
 
-// Consumer wraps an endpoint and implements [kafka.Handler].
+// Consumer wraps an [endpoint.Endpoint] and implements [kafka.Handler].
 type Consumer struct {
 	e            endpoint.Endpoint
 	dec          DecodeRequestFunc
@@ -19,7 +18,7 @@ type Consumer struct {
 	errorHandler transport.ErrorHandler
 }
 
-// NewConsumer constructs a new consumer, which implements kafka.Handler and wraps the provided endpoint.
+// NewConsumer constructs a new consumer, which implements [kafka.Handler] and wraps the provided [endpoint.Endpoint].
 func NewConsumer(
 	e endpoint.Endpoint,
 	dec DecodeRequestFunc,
@@ -28,7 +27,7 @@ func NewConsumer(
 	c := &Consumer{
 		e:   e,
 		dec: dec,
-		errorHandler: transport.ErrorHandlerFunc(func(ctx context.Context, err error) {
+		errorHandler: transport.ErrorHandlerFunc(func(context.Context, error) {
 			// noop
 		}),
 	}
@@ -75,7 +74,7 @@ func ConsumerFinalizer(f ...ConsumerFinalizerFunc) ConsumerOption {
 }
 
 // Handle implements [kafka.Handler].
-func (c Consumer) Handle(ctx context.Context, msg *kafka.Message) (err error) {
+func (c Consumer) Handle(ctx context.Context, msg kafka.Message) (err error) {
 	if len(c.finalizer) > 0 {
 		defer func() {
 			for _, f := range c.finalizer {
@@ -85,10 +84,10 @@ func (c Consumer) Handle(ctx context.Context, msg *kafka.Message) (err error) {
 	}
 
 	for _, f := range c.before {
-		ctx = f(ctx, msg)
+		ctx = f(ctx, &msg)
 	}
 
-	request, err := c.dec(ctx, msg)
+	request, err := c.dec(ctx, &msg)
 	if err != nil {
 		c.errorHandler.Handle(ctx, err)
 		return err
@@ -110,4 +109,4 @@ func (c Consumer) Handle(ctx context.Context, msg *kafka.Message) (err error) {
 // ConsumerFinalizerFunc can be used to perform work at the end of message processing,
 // after the response has been constructed. The principal
 // intended use is for request logging.
-type ConsumerFinalizerFunc func(ctx context.Context, msg *kafka.Message, err error)
+type ConsumerFinalizerFunc func(ctx context.Context, msg kafka.Message, err error)
