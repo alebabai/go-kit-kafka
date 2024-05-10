@@ -29,7 +29,7 @@ import "github.com/alebabai/go-kit-kafka/v2"
 
 Just import it into your project and use the provided abstractions to couple your preferred Apache Kafka client library with the well-known [go-kit/kit](https://github.com/go-kit/kit).
 
-For detailed information, please refer to the [alebabai/go-kafka](https://github.com/alebabai/go-kafka) repository.
+For more information about transport abstraction, please refer to the [alebabai/go-kafka](https://github.com/alebabai/go-kafka) repository.
 
 ## Examples
 
